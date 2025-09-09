@@ -7,12 +7,12 @@ body {
 }
 
 :root {
-  --bg-light: #fafafa;
-  --bg-dark: #1c1c1c;
-  --text-light: #202020;
-  --text-dark: #f0f0f0;
+  --bg-light: #f9f9f9;
+  --bg-dark: #1a1a1a;
+  --text-light: #222;
+  --text-dark: #f5f5f5;
   --card-light: #ffffff;
-  --card-dark: #2b2b2b;
+  --card-dark: #2c2c2c;
   --border-light: #ddd;
   --border-dark: #444;
   --primary: #0070f3;
@@ -36,16 +36,17 @@ body.night {
   max-width: 850px;
   margin: 40px auto;
   background: var(--card);
-  padding: 32px;
+  padding: 28px;
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--border);
 }
 
 h1 {
-  font-size: 28px;
   text-align: center;
+  font-size: 28px;
   font-weight: bold;
+  margin-bottom: 15px;
 }
 
 textarea {
@@ -61,41 +62,37 @@ textarea {
   margin-top: 12px;
 }
 
-button, a.button {
-  display: inline-block;
+button {
   background: var(--primary);
-  color: #fff;
-  border: none;
+  color: white;
   padding: 12px 18px;
-  margin-top: 12px;
+  border: none;
   border-radius: 10px;
-  font-size: 15px;
-  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s;
+  font-size: 16px;
+  margin-top: 14px;
+  display: block;
+  width: 100%;
+  transition: background 0.2s ease-in-out, transform 0.1s ease;
 }
 
-button:hover, a.button:hover {
+button:hover {
   background: #0059c1;
   transform: translateY(-1px);
 }
 
 #result {
-  margin-top: 24px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  padding: 18px;
-  border-radius: 12px;
+  margin-top: 20px;
   text-align: center;
 }
 
 .progress-bar {
   width: 100%;
-  height: 22px;
-  background: #ddd;
+  height: 20px;
+  background: #e0e0e0;
   border-radius: 12px;
-  margin-top: 8px;
   overflow: hidden;
+  margin-top: 8px;
 }
 
 #scoreFill {
@@ -106,8 +103,8 @@ button:hover, a.button:hover {
 }
 
 #suggestions {
-  margin-top: 14px;
   text-align: left;
+  margin-top: 15px;
 }
 
 #suggestions ul {
@@ -115,5 +112,5 @@ button:hover, a.button:hover {
 }
 
 #suggestions li {
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
