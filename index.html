@@ -1,74 +1,27 @@
-<!doctype html>
-<html lang="en-GB">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ATS Resume Score Checker</title>
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Typo.js (UK English Spellchecker) -->
-  <script src="https://cdn.jsdelivr.net/npm/typo-js@1.2.1/typo.min.js"></script>
-  <!-- Mammoth.js for DOCX extraction -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATS Resume Checker</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <!-- Mammoth.js for DOCX parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
-  <!-- PDF.js for PDF text extraction -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body class="day">
-  <header class="topbar">
-    <h1>ATS Resume Score Checker</h1>
-    <div class="controls">
-      <label class="toggle">
-        <input id="modeToggle" type="checkbox" />
-        <span>Night mode</span>
-      </label>
+  <div class="container">
+    <h1>ATS Resume Checker</h1>
+    <input type="file" id="fileInput" accept=".pdf,.docx" />
+    <textarea id="resumeText" placeholder="Paste your resume here..."></textarea>
+    <button id="evaluateBtn">Check ATS Score</button>
+    <div id="result">
+      <h2>ATS Score: <span id="score">0</span>/100</h2>
+      <div class="progress-bar"><span id="scoreFill"></span></div>
+      <div id="suggestions"></div>
     </div>
-  </header>
-
-  <main class="container">
-    <section class="upload">
-      <h2>Upload or Paste Your Resume</h2>
-      <div class="inputs">
-        <input id="fileInput" type="file" accept=".txt,.docx,.pdf" />
-        <button id="pasteBtn">Paste Sample Text</button>
-      </div>
-
-      <textarea id="resumeText" placeholder="Paste your resume text here..." spellcheck="true"></textarea>
-
-      <div class="actions">
-        <button id="scoreBtn">Check ATS Score</button>
-        <button id="clearBtn" class="ghost">Clear</button>
-      </div>
-
-      <div id="result" class="result hidden">
-        <div class="scoreBox">
-          <h3>ATS Score: <span id="scoreNumber">0</span>/100</h3>
-          <div id="scoreBar" class="scoreBar"><div id="scoreFill"></div></div>
-        </div>
-
-        <div id="suggestions" class="suggestions"></div>
-
-        <div class="actions-row">
-          <a id="bookBtn" class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header" target="_blank">Book Free Consultation</a>
-          <a id="waBtn" class="btn wa" target="_blank">WhatsApp</a>
-        </div>
-      </div>
-    </section>
-
-    <aside class="info">
-      <h3>How the score is calculated</h3>
-      <ul>
-        <li>Basic grammar & spelling (UK English)</li>
-        <li>No images, tables, or multi-columns</li>
-        <li>Times New Roman & paragraph spacing</li>
-        <li>Allowed symbols only</li>
-      </ul>
-      <div class="note">This is a client-side checker. For a full professional review, book a free consultation.</div>
-    </aside>
-  </main>
-
-  <footer class="footer">
-    <small>Made for quick checks • Deploy on Vercel from GitHub</small>
-  </footer>
+  </div>
 
   <script src="script.js"></script>
 </body>
