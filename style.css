@@ -1,114 +1,136 @@
+/*
+ * Import the Inter font from Google Fonts.
+ * Add this line to the <head> of your HTML file:
+ * <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+ */
 body {
-  font-family: "Times New Roman", serif;
-  background: #f1f3f4;
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  padding: 40px 10px;
+    font-family: 'Inter', sans-serif;
+    background: #f7f8fc;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2.5rem 1rem;
+    color: #4b5563;
 }
 
 .container {
-  max-width: 700px;
-  background: white;
-  padding: 30px 25px;
-  border-radius: 20px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    max-width: 700px;
+    width: 100%;
+    background: white;
+    padding: 2.5rem 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 5px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 h1 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #3c4043;
-  font-size: 28px;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #1f2937;
+    font-size: 2.25rem;
+    font-weight: 700;
 }
 
 textarea {
-  width: 100%;
-  height: 220px;
-  padding: 15px;
-  border-radius: 12px;
-  border: 1px solid #d1d1d1;
-  resize: vertical;
-  font-size: 16px;
-  line-height: 1.5;
-  background: #fafafa;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    width: 100%;
+    height: 14rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 2px solid #e5e7eb;
+    resize: vertical;
+    font-size: 1rem;
+    line-height: 1.6;
+    background: #f9fafb;
+    transition: all 0.2s ease-in-out;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #6c5ce7;
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
 }
 
 .upload-section {
-  text-align: center;
-  margin-top: 12px;
+    text-align: center;
+    margin-top: 1rem;
 }
 
 .button-group {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
 }
 
 button, .form-button {
-  padding: 12px 25px;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  background: #673ab7;
-  color: white;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    display: inline-block;
+    background: #6c5ce7;
+    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.2);
 }
 
 button.clear {
-  background: #e53935;
+    background: #ff6b6b;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
 }
 
 button:hover, .form-button:hover {
-  background: #5e35b1;
-  transform: scale(1.02);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(108, 92, 231, 0.25);
 }
 
 #resultSection {
-  text-align: center;
-  margin-top: 20px;
-  background: #f8faff;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: center;
+    margin-top: 1.5rem;
+    background: #f0f4ff;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid #c3d4f7;
 }
 
 #atsScore {
-  font-size: 30px;
-  font-weight: bold;
-  color: #388e3c;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #16a34a;
 }
 
 #whatsappBtn {
-  display: inline-block;
-  margin-top: 15px;
-  padding: 12px 25px;
-  background: #25D366;
-  color: white;
-  font-weight: bold;
-  text-decoration: none;
-  border-radius: 25px;
-  transition: 0.3s ease;
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background: #25D366;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 9999px;
+    transition: all 0.3s ease;
 }
 
 #whatsappBtn:hover {
-  background: #1ebe5b;
+    background: #1ebf5b;
+    transform: translateY(-2px);
 }
 
 .suggestion {
-  margin-top: 25px;
-  background: #f3e8ff;
-  padding: 15px;
-  border-radius: 15px;
-  text-align: center;
-  font-size: 15px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    margin-top: 2rem;
+    background: #f3e8ff;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #553c9a;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
 }
