@@ -1,4 +1,5 @@
 (() => {
+  // DOM Elements
   const fileInput = document.getElementById('fileInput');
   const pasteBtn = document.getElementById('pasteBtn');
   const resumeText = document.getElementById('resumeText');
@@ -11,16 +12,27 @@
   const waBtn = document.getElementById('waBtn');
   const modeToggle = document.getElementById('modeToggle');
 
-  const dictionary = new Typo("en_GB");
+  // Debug Mode Toggle
+  let debugMode = false;
+  const debugToggle = document.createElement('button');
+  debugToggle.textContent = "Toggle Debug Mode";
+  debugToggle.className = "ghost";
+  debugToggle.addEventListener('click', () => {
+    debugMode = !debugMode;
+    alert("Debug Mode " + (debugMode ? "ON" : "OFF"));
+  });
+  document.querySelector(".actions").appendChild(debugToggle);
+
+  // WhatsApp link
   const waNumber = '+916005795693';
   const waMessage = encodeURIComponent("Hello, I would like a free review of my attached resume.");
   waBtn.href = `https://wa.me/${waNumber.replace(/\D/g,'')}?text=${waMessage}`;
 
-  // Mode Toggle
+  // Theme toggle persistence
   const current = localStorage.getItem('ats_mode') || 'day';
   document.body.classList.add(current);
   modeToggle.checked = current === 'night';
-  modeToggle.addEventListener('change', ()=>{
+  modeToggle.addEventListener('change', () => {
     const mode = modeToggle.checked ? 'night' : 'day';
     document.body.classList.remove('day','night');
     document.body.classList.add(mode);
@@ -28,7 +40,7 @@
   });
 
   pasteBtn.addEventListener('click', ()=>{
-    resumeText.value = `PASTE SAMPLE TEXT HERE...`; // Can put Sukanta Kar text for testing
+    resumeText.value = `JOHN SMITH\nProfessional Summary:\nExperienced marketing manager with a proven track record of increasing campaign ROI.\n\nWork Experience:\n- Marketing Manager, ABC Ltd. (2019 - Present)\n  * Led team of 5 and grew sales by 45%`;
   });
 
   fileInput.addEventListener('change', async (e)=>{
@@ -36,97 +48,140 @@
     if(!f) return;
     const name = f.name.toLowerCase();
 
+    // --- DOCX Parsing ---
     if(name.endsWith('.docx')){
-      const reader = new FileReader();
-      reader.onload = async function(ev){
-        const { value } = await window.mammoth.extractRawText({ arrayBuffer: ev.target.result });
-        resumeText.value = value || '';
-      };
-      reader.readAsArrayBuffer(f);
+      const arrayBuffer = await f.arrayBuffer();
+      const result = await window.mammoth.extractRawText({ arrayBuffer });
+      resumeText.value = normalizeText(result.value);
       return;
     }
 
+    // --- PDF Parsing ---
     if(name.endsWith('.pdf')){
       const pdfData = await f.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
-      let fullText = '';
+      let rawText = '';
       for(let i=1; i <= pdf.numPages; i++){
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
-        fullText += textContent.items.map(item => item.str).join(' ') + '\n';
+        rawText += textContent.items.map(item => item.str).join(' ') + '\n';
       }
-      resumeText.value = fullText.trim();
+      resumeText.value = normalizeText(rawText);
       return;
     }
 
-    resumeText.value = await f.text();
+    // --- Plain Text ---
+    const txt = await f.text().catch(()=>'');
+    resumeText.value = normalizeText(txt || resumeText.value);
   });
 
-  clearBtn.addEventListener('click', ()=>{ resumeText.value=''; resultBox.classList.add('hidden'); });
+  clearBtn.addEventListener('click', ()=>{resumeText.value='';resultBox.classList.add('hidden');});
 
   scoreBtn.addEventListener('click', ()=>{
     const txt = resumeText.value.trim();
-    if(!txt){ alert('Please paste or upload your resume text first.'); return; }
+    if(!txt){alert('Please paste or upload your resume text first.');return}
     const scoreReport = evaluateResume(txt);
     showResult(scoreReport);
   });
 
+  // --- TEXT NORMALIZATION ---
+  function normalizeText(raw){
+    return raw
+      .replace(/\s{2,}/g, ' ')        // collapse multiple spaces
+      .replace(/-\s+/g, '-')          // fix hyphen spacing
+      .replace(/\n{3,}/g, '\n\n')     // normalize paragraph spacing
+      .replace(/[^\S\r\n]+/g, ' ')    // remove weird invisible spaces
+      .trim();
+  }
+
+  // --- RESUME SCORING FUNCTION ---
   function evaluateResume(text){
     let score = 100;
     const notes = [];
+    const debug = [];
 
-    // Spellcheck
-    const words = text.match(/[A-Za-z']+/g) || [];
-    const misspelled = words.filter(w => !dictionary.check(w));
-    if(misspelled.length > 0){
-      const penalty = Math.min(10, Math.ceil(misspelled.length / 10));
-      score -= penalty;
-      notes.push(`${misspelled.length} possible spelling issues (UK)`);
+    const lower = text.toLowerCase();
+    const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
+
+    // 1) Forbidden formatting
+    if(/<img\s|data:image\//i.test(text)){score -= 10; notes.push('Remove images.'); debug.push("Image check failed");}
+    if(/\t/.test(text)){score -= 5; notes.push('Tabs detected — convert to single-column.'); debug.push("Tab characters found");}
+
+    // 2) Times New Roman mention
+    if(!/times new roman/i.test(text)){ score -= 2; notes.push('Use Times New Roman font.'); debug.push("Font mention missing"); }
+
+    // 3) Paragraph spacing (forgiving)
+    const sections = text.split(/\n{2,}/).filter(s=>s.trim().length>30);
+    if(sections.length < 2){ score -= 2; notes.push('Add blank lines between sections.'); debug.push("Paragraph spacing low"); }
+
+    // 4) Headings (upper or colon)
+    const headings = lines.filter(l => l.length>3 && (l === l.toUpperCase() || /:$/.test(l)));
+    if(headings.length < 2){ score -= 2; notes.push('Use bold/clear section headings.'); debug.push("Low heading count"); }
+
+    // 5) UK English check
+    const usToUk = { 'color':'colour','organize':'organise','organizing':'organising','analyze':'analyse','analyzing':'analysing','center':'centre','defense':'defence','license':'licence'};
+    const usFound = Object.keys(usToUk).filter(w=>new RegExp(`\\b${w}\\b`,'i').test(text));
+    if(usFound.length>0){ score -= 3; notes.push('US spellings: '+usFound.join(', ')); debug.push("US spellings detected"); }
+
+    // 6) Spellcheck with Typo.js
+    if(window.ukDict){
+      const words = text.split(/\s+/);
+      let missCount = 0;
+      for(const w of words){
+        const clean = w.replace(/[^a-zA-Z']/g,'');
+        if(clean && !window.ukDict.check(clean)) missCount++;
+      }
+      if(missCount>0){
+        const penalty = Math.min(5, Math.ceil(missCount/10));
+        score -= penalty;
+        notes.push(`${missCount} possible spelling issues detected.`);
+        debug.push(`${missCount} words failed spellcheck`);
+      }
     }
 
-    // Layout / Formatting
-    if(/<img|data:image|https?:.*\.(png|jpg|jpeg)/i.test(text)){ score -= 15; notes.push('Remove images.'); }
-    if(/<table|\btable\b/i.test(text)){ score -= 10; notes.push('Remove tables.'); }
-    if(/\t/.test(text)){ score -= 5; notes.push('Remove tab characters — use single column format.'); }
+    // 7) Metrics check: require numbers or % to prove results
+    const hasMetrics = /\d+[%₹$]*/.test(text);
+    if(!hasMetrics){ score -= 10; notes.push('Add metrics (% growth, revenue, numbers) to quantify achievements.'); debug.push("No metrics found"); }
 
-    // Paragraph spacing
-    const sections = text.split(/\n{2,}/).filter(s=>s.trim().length>20);
-    if(sections.length < 3) { score -= 5; notes.push('Add paragraph spacing for ATS readability.'); }
+    // Floor score
+    if(score < 0) score = 0;
+    score = Math.round(score);
 
-    // Special characters check
-    const specialChars = text.replace(/[A-Za-z0-9\s\.,\|\$\-\(\)\'\_\@\~]/g,'');
-    if(specialChars.length>0){ score -= Math.min(5, Math.floor(specialChars.length/2)); notes.push('Remove unusual symbols.'); }
+    // Suggestions
+    const suggestions = [...notes];
+    if(text.split(/[\.\!\?]/).length < 3) suggestions.push('Add a professional summary and bullet points.');
 
-    // UK vs US English check
-    const usWords = ['color','organize','center','analyze','license','defense'];
-    const foundUS = usWords.filter(w=>new RegExp('\\b'+w+'\\b','i').test(text));
-    if(foundUS.length>0){ score -= 5; notes.push('Convert to UK English: ' + foundUS.join(', ')); }
-
-    // ✅ Metric Check — reduce score if no measurable data in Work Experience
-    const workExpBlock = text.match(/Work Experience([\s\S]*)Education/i);
-    const workExp = workExpBlock ? workExpBlock[1] : '';
-    const hasMetrics = /\d+[%₹]|Rs\.?\s*\d+|cr|crore|million|billion|kpi|growth|roi|increased|decreased|reduced/i.test(workExp);
-    if(!hasMetrics){
-      score -= 15;
-      notes.push('Add measurable metrics (%, revenue, cost savings, growth figures) to strengthen impact.');
-    }
-
-    return { score: Math.max(0,Math.round(score)), suggestions: notes,
-      premiumTips: [
-        'Start every bullet point with an action verb.',
-        'Use at least one measurable result per job (%, ₹, revenue, growth).',
-        'Keep resume under 2 pages for better ATS performance.'
-      ]
-    };
+    return { score, suggestions, debug };
   }
 
-  function showResult({score, suggestions, premiumTips}){
+  // --- SHOW RESULT ---
+  function showResult({score, suggestions, debug}){
     resultBox.classList.remove('hidden');
     scoreNumber.textContent = score;
     scoreFill.style.width = score + '%';
-    scoreFill.style.background = score>=90?'linear-gradient(90deg,#28a745,#2ea44f)':score>=70?'linear-gradient(90deg,#ffc107,#ff8c00)':'linear-gradient(90deg,#ff6b6b,#d73a49)';
-    let html = '<h4>Improvement Suggestions</h4><ul>' + suggestions.map(s=>`<li>${s}</li>`).join('') + '</ul>';
-    html += score>=90?('<div class="premium"><h4>Premium Tips</h4><ul>'+premiumTips.map(t=>`<li>${t}</li>`).join('')+'</ul></div>'):`<div class="premium locked">Reach 90+ to unlock premium tips.</div>`;
+
+    if(score >= 85) scoreFill.style.background = 'linear-gradient(90deg,#28a745,#2ea44f)';
+    else if(score >= 60) scoreFill.style.background = 'linear-gradient(90deg,#ffc107,#ff8c00)';
+    else scoreFill.style.background = 'linear-gradient(90deg,#ff6b6b,#d73a49)';
+
+    let html = '<h4>Improvement suggestions</h4><ul>' + suggestions.map(s=>`<li>${escapeHtml(s)}</li>`).join('') + '</ul>';
+
+    if(debugMode){
+      html += `<div class="debug"><h4>Debug Details</h4><pre>${debug.join("\n") || "All checks passed ✅"}</pre></div>`;
+    }
+
     suggestionsEl.innerHTML = html;
   }
+
+  function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // --- Load Typo.js dictionary for UK English ---
+  fetch("https://cdn.jsdelivr.net/npm/typo-js/dictionaries/en_GB/en_GB.aff")
+    .then(res => res.text())
+    .then(affData => fetch("https://cdn.jsdelivr.net/npm/typo-js/dictionaries/en_GB/en_GB.dic")
+      .then(res => res.text())
+      .then(dicData => {
+        window.ukDict = new Typo("en_GB", affData, dicData);
+      })
+    );
 })();
