@@ -1,87 +1,125 @@
 (() => {
-score -= 16; notes.push('Tables detected — convert to plain text.');
-}
-if(/\t/.test(text) || (text.split('\n').filter(l=>l.includes(' ')).length > 10)){
-score -= 12; notes.push('Possible multi-column layout detected.');
-}
-if(!/times new roman/i.test(text)){
-score -= 6; notes.push('Times New Roman not found — ensure correct font.');
-}
+  const fileInput = document.getElementById('fileInput');
+  const pasteBtn = document.getElementById('pasteBtn');
+  const resumeText = document.getElementById('resumeText');
+  const scoreBtn = document.getElementById('scoreBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const resultBox = document.getElementById('result');
+  const scoreNumber = document.getElementById('scoreNumber');
+  const scoreFill = document.getElementById('scoreFill');
+  const suggestionsEl = document.getElementById('suggestions');
+  const waBtn = document.getElementById('waBtn');
+  const modeToggle = document.getElementById('modeToggle');
 
+  const dictionary = new Typo("en_GB");
+  const waNumber = '+916005795693';
+  const waMessage = encodeURIComponent("Hello, I would like a free review of my attached resume.");
+  waBtn.href = `https://wa.me/${waNumber.replace(/\\D/g,'')}?text=${waMessage}`;
 
-const sections = text.split(/\n{2,}/).filter(s=>s.trim().length>20);
-if(sections.length < 3){ score -= 8; notes.push('Add clear paragraph spacing between sections.'); }
+  // Mode Toggle
+  const current = localStorage.getItem('ats_mode') || 'day';
+  document.body.classList.add(current);
+  modeToggle.checked = current === 'night';
+  modeToggle.addEventListener('change', ()=>{
+    const mode = modeToggle.checked ? 'night' : 'day';
+    document.body.classList.remove('day','night');
+    document.body.classList.add(mode);
+    localStorage.setItem('ats_mode', mode);
+  });
 
+  pasteBtn.addEventListener('click', ()=>{
+    resumeText.value = `JOHN SMITH\nProfessional Summary:\nExperienced marketing manager with a proven track record.\n\nWork Experience:\nMarketing Manager, ABC Ltd. (2019 - Present)\n- Led a team of 5 and grew sales by 45%`;
+  });
 
-const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
-const headings = lines.filter(l => l.length>3 && (l === l.toUpperCase() || /:$/.test(l)));
-if(headings.length < 2){ score -= 6; notes.push('Add bold section headers.'); }
+  // File Upload Parsing
+  fileInput.addEventListener('change', async (e)=>{
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    const name = f.name.toLowerCase();
 
+    if(name.endsWith('.docx')){
+      const reader = new FileReader();
+      reader.onload = async function(ev){
+        const { value } = await window.mammoth.extractRawText({ arrayBuffer: ev.target.result });
+        resumeText.value = value || '';
+      };
+      reader.readAsArrayBuffer(f);
+      return;
+    }
 
-const specialChars = text.replace(/[A-Za-z0-9\s\.,\|\$\-\(\)\'\_\@\~]/g,'');
-const otherSpecialCount = specialChars.length;
-if(otherSpecialCount > 0){
-const penalty = Math.min(15, Math.floor(otherSpecialCount/2));
-score -= penalty; notes.push(`${otherSpecialCount} disallowed characters detected.`);
-}
+    if(name.endsWith('.pdf')){
+      const pdfData = await f.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+      let fullText = '';
+      for(let i=1; i <= pdf.numPages; i++){
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        fullText += textContent.items.map(item => item.str).join(' ') + '\\n';
+      }
+      resumeText.value = fullText.trim();
+      return;
+    }
 
+    // fallback for txt
+    resumeText.value = await f.text();
+  });
 
-const usToUk = { 'color':'colour','organize':'organise','analyze':'analyse','center':'centre','defense':'defence','license':'licence'};
-const usFound = Object.keys(usToUk).filter(w=>new RegExp('\\b'+w+'\\b','i').test(text));
-if(usFound.length>0){ score -= 8; notes.push('US spellings detected: '+usFound.join(', ')); }
+  clearBtn.addEventListener('click', ()=>{ resumeText.value=''; resultBox.classList.add('hidden'); });
 
+  scoreBtn.addEventListener('click', ()=>{
+    const txt = resumeText.value.trim();
+    if(!txt){ alert('Please paste or upload your resume text first.'); return; }
+    const scoreReport = evaluateResume(txt);
+    showResult(scoreReport);
+  });
 
-const doubleSpaces = (text.match(/ {2,}/g) || []).length;
-if(doubleSpaces>0){ score -= Math.min(5,doubleSpaces); notes.push('Remove double spaces.'); }
+  function evaluateResume(text){
+    let score = 100;
+    const notes = [];
 
+    // --- Spellcheck ---
+    const words = text.match(/[A-Za-z']+/g) || [];
+    const misspelled = words.filter(w => !dictionary.check(w));
+    if(misspelled.length > 0){
+      const penalty = Math.min(20, Math.ceil(misspelled.length / 5));
+      score -= penalty;
+      notes.push(`${misspelled.length} potential spelling issues (UK): e.g. ${misspelled.slice(0,5).join(', ')}`);
+    }
 
-const sentences = text.split(/[\.!?]+\s/).filter(Boolean);
-const longSentences = sentences.filter(s=>s.split(' ').length > 40).length;
-if(longSentences>0){ score -= Math.min(8, longSentences*2); notes.push('Shorten very long sentences.'); }
+    // --- Layout / Formatting ---
+    if(/<img|data:image|https?:.*\\.(png|jpg|jpeg)/i.test(text)){ score -= 15; notes.push('Images detected — remove images.'); }
+    if(/<table|\\btable\\b/i.test(text)){ score -= 10; notes.push('Tables detected — use plain text formatting.'); }
+    if(/\\t/.test(text)){ score -= 10; notes.push('Tabs detected — use single-column layout.'); }
 
+    if(!/times new roman/i.test(text)){ score -= 5; notes.push('Ensure Times New Roman font is used.'); }
 
-// Typo.js UK spellcheck (if loaded)
-if (window.Typo) {
-const dictionary = new Typo('en_GB');
-const words = text.match(/[A-Za-z']+/g) || [];
-const misspelled = words.filter(w => !dictionary.check(w));
-if(misspelled.length > 0){
-score -= Math.min(20, Math.ceil(misspelled.length / 5));
-notes.push(`${misspelled.length} spelling issues found (e.g., ${misspelled.slice(0,5).join(', ')})`);
-}
-}
+    const sections = text.split(/\\n{2,}/).filter(s=>s.trim().length>20);
+    if(sections.length < 3) { score -= 5; notes.push('Add paragraph spacing between sections.'); }
 
+    // --- Special Characters ---
+    const specialChars = text.replace(/[A-Za-z0-9\\s\\.,\\|\\$\\-\\(\\)\\'\\_\\@\\~]/g,'');
+    if(specialChars.length>0){ score -= Math.min(10, Math.floor(specialChars.length/2)); notes.push('Remove unusual symbols.'); }
 
-if(score < 0) score = 0;
-score = Math.round(score);
+    // --- UK English enforcement ---
+    const usWords = ['color','organize','center','analyze','license','defense'];
+    const foundUS = usWords.filter(w=>new RegExp('\\\\b'+w+'\\\\b','i').test(text));
+    if(foundUS.length>0){ score -= 8; notes.push('Convert to UK English: ' + foundUS.join(', ')); }
 
+    return { score: Math.max(0,Math.round(score)), suggestions: notes,
+      premiumTips: [
+        'Start every sentence in work experience with an action verb.',
+        'Write your professional summary using STAR (Situation, Task, Action, Result).'
+      ]
+    };
+  }
 
-const premiumTips = [
-'Start every sentence in work experience with an action verb.',
-'Write your professional summary using the STAR approach.'
-];
-
-
-return { score, suggestions: notes, premiumTips };
-}
-
-
-function showResult({score, suggestions, premiumTips}){
-resultBox.classList.remove('hidden');
-scoreNumber.textContent = score;
-scoreFill.style.width = score + '%';
-scoreFill.style.background = score >= 85 ? 'linear-gradient(90deg,#28a745,#2ea44f)' : score >= 60 ? 'linear-gradient(90deg,#ffc107,#ff8c00)' : 'linear-gradient(90deg,#ff6b6b,#d73a49)';
-
-
-let html = '<h4>Improvement suggestions</h4><ul>' + suggestions.map(s=>`<li>${escapeHtml(s)}</li>`).join('') + '</ul>';
-html += score >= 90
-? '<div class="premium"><h4>Premium tips</h4><ul>' + premiumTips.map(t=>`<li>${escapeHtml(t)}</li>`).join('') + '</ul></div>'
-: `<div class="premium locked">Reach 90+ to unlock premium tips.</div>`;
-
-
-suggestionsEl.innerHTML = html;
-}
-
-
-function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function showResult({score, suggestions, premiumTips}){
+    resultBox.classList.remove('hidden');
+    scoreNumber.textContent = score;
+    scoreFill.style.width = score + '%';
+    scoreFill.style.background = score>=85?'linear-gradient(90deg,#28a745,#2ea44f)':score>=60?'linear-gradient(90deg,#ffc107,#ff8c00)':'linear-gradient(90deg,#ff6b6b,#d73a49)';
+    let html = '<h4>Improvement Suggestions</h4><ul>' + suggestions.map(s=>`<li>${s}</li>`).join('') + '</ul>';
+    html += score>=90?('<div class="premium"><h4>Premium Tips</h4><ul>'+premiumTips.map(t=>`<li>${t}</li>`).join('')+'</ul></div>'):`<div class="premium locked">Reach 90+ to unlock premium tips.</div>`;
+    suggestionsEl.innerHTML = html;
+  }
 })();
