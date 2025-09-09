@@ -1,77 +1,75 @@
 <!doctype html>
 <html lang="en-GB">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ATS Resume Score Checker</title>
-<link rel="stylesheet" href="style.css" />
-<!-- Mammoth.js for DOCX parsing -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
-<!-- PDF.js for PDF parsing -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ATS Resume Score Checker</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Typo.js (UK English Spellchecker) -->
+  <script src="https://cdn.jsdelivr.net/npm/typo-js@1.2.1/typo.min.js"></script>
+  <!-- Mammoth.js for DOCX extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+  <!-- PDF.js for PDF text extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body class="day">
-<header class="topbar">
-<h1>ATS Resume Score Checker</h1>
-<label class="toggle">
-<input id="modeToggle" type="checkbox" />
-<span>🌙 Night Mode</span>
-</label>
-</header>
+  <header class="topbar">
+    <h1>ATS Resume Score Checker</h1>
+    <div class="controls">
+      <label class="toggle">
+        <input id="modeToggle" type="checkbox" />
+        <span>Night mode</span>
+      </label>
+    </div>
+  </header>
 
+  <main class="container">
+    <section class="upload">
+      <h2>Upload or Paste Your Resume</h2>
+      <div class="inputs">
+        <input id="fileInput" type="file" accept=".txt,.docx,.pdf" />
+        <button id="pasteBtn">Paste Sample Text</button>
+      </div>
 
-<main class="container">
-<section class="upload">
-<h2>Upload or paste your resume</h2>
-<div class="inputs">
-<input id="fileInput" type="file" accept=".txt,.doc,.docx,.rtf,.pdf" />
-<button id="pasteBtn">Paste sample text</button>
-</div>
+      <textarea id="resumeText" placeholder="Paste your resume text here..." spellcheck="true"></textarea>
 
+      <div class="actions">
+        <button id="scoreBtn">Check ATS Score</button>
+        <button id="clearBtn" class="ghost">Clear</button>
+      </div>
 
-<textarea id="resumeText" placeholder="Paste your resume text here..." spellcheck="true"></textarea>
+      <div id="result" class="result hidden">
+        <div class="scoreBox">
+          <h3>ATS Score: <span id="scoreNumber">0</span>/100</h3>
+          <div id="scoreBar" class="scoreBar"><div id="scoreFill"></div></div>
+        </div>
 
+        <div id="suggestions" class="suggestions"></div>
 
-<div class="actions">
-<button id="scoreBtn">Check ATS Score</button>
-<button id="clearBtn" class="ghost">Clear</button>
-</div>
+        <div class="actions-row">
+          <a id="bookBtn" class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header" target="_blank">Book Free Consultation</a>
+          <a id="waBtn" class="btn wa" target="_blank">WhatsApp</a>
+        </div>
+      </div>
+    </section>
 
+    <aside class="info">
+      <h3>How the score is calculated</h3>
+      <ul>
+        <li>Basic grammar & spelling (UK English)</li>
+        <li>No images, tables, or multi-columns</li>
+        <li>Times New Roman & paragraph spacing</li>
+        <li>Allowed symbols only</li>
+      </ul>
+      <div class="note">This is a client-side checker. For a full professional review, book a free consultation.</div>
+    </aside>
+  </main>
 
-<div id="result" class="result hidden">
-<div class="scoreBox">
-<h3>ATS Score: <span id="scoreNumber">0</span>/100</h3>
-<div id="scoreBar" class="scoreBar"><div id="scoreFill"></div></div>
-</div>
+  <footer class="footer">
+    <small>Made for quick checks • Deploy on Vercel from GitHub</small>
+  </footer>
 
-
-<div id="suggestions" class="suggestions"></div>
-
-
-<div class="actions-row">
-<a id="bookBtn" class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header" target="_blank">📅 Book Free Consultation</a>
-<a id="waBtn" class="btn wa" href="#" target="_blank">💬 WhatsApp</a>
-</div>
-</div>
-</section>
-
-
-<aside class="info">
-<h3>How scoring works</h3>
-<ul>
-<li>Grammar & UK spelling check</li>
-<li>No images, tables, or bi-column layouts</li>
-<li>Times New Roman + paragraph spacing</li>
-<li>Allowed symbols only</li>
-</ul>
-<p class="note">This is a quick client-side ATS check. For a professional review, book a consultation.</p>
-</aside>
-</main>
-
-
-<footer class="footer">
-<small>Made for quick checks • Deploy on Vercel</small>
-</footer>
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
