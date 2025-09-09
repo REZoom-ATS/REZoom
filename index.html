@@ -1,27 +1,85 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en-GB">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ATS Resume Checker</title>
+
+  <!-- styles -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- Libraries -->
   <!-- PDF.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-  <!-- Mammoth.js for DOCX parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Mammoth.js for docx -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+  <!-- Typo.js (we'll fetch dictionary files inside script.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/typo-js@1.2.1/typo.min.js"></script>
 </head>
 <body class="day">
-  <div class="container">
-    <h1>ATS Resume Checker</h1>
-    <input type="file" id="fileInput" accept=".pdf,.docx" />
-    <textarea id="resumeText" placeholder="Paste your resume here..."></textarea>
-    <button id="evaluateBtn">Check ATS Score</button>
-    <div id="result">
-      <h2>ATS Score: <span id="score">0</span>/100</h2>
-      <div class="progress-bar"><span id="scoreFill"></span></div>
-      <div id="suggestions"></div>
+
+  <header class="topbar">
+    <h1>ATS Resume Score Checker</h1>
+    <div class="controls">
+      <label class="theme-toggle">
+        <input id="modeToggle" type="checkbox" />
+        <span>Night</span>
+      </label>
     </div>
-  </div>
+  </header>
+
+  <main class="main">
+    <section class="card uploader">
+      <h2>Upload / Paste Resume</h2>
+      <div class="file-row">
+        <input id="fileInput" type="file" accept=".pdf,.docx,.txt" />
+        <button id="pasteBtn" class="btn ghost">Paste Sample</button>
+      </div>
+
+      <textarea id="resumeText" placeholder="Paste resume text here (or upload a PDF / DOCX)"></textarea>
+
+      <div class="actions">
+        <button id="checkBtn" class="btn primary">Check ATS Score</button>
+        <button id="clearBtn" class="btn ghost">Clear</button>
+      </div>
+
+      <div id="result" class="result hidden">
+        <div class="score-row">
+          <div class="score-large"><span id="scoreNumber">0</span>/100</div>
+          <div class="progress">
+            <div id="scoreFill" class="progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div id="suggestions" class="suggestions"></div>
+
+        <div class="post-actions">
+          <a id="bookForm" class="btn secondary" target="_blank"
+             href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header">Fill Google Form</a>
+
+          <button id="afterFormBtn" class="btn primary">I've submitted — Message on WhatsApp</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card info">
+      <h3>What we check (for 100 ATS)</h3>
+      <ul>
+        <li>Name on top (auto-detected)</li>
+        <li>Contact block present: address | phone | email | link (no grammar check)</li>
+        <li>Professional summary (≤6 sentences) — grammar & spelling checked</li>
+        <li>Work experience — bullets only grammar checked; format & dates validated</li>
+        <li>Education & Certificates — format validated (no grammar check)</li>
+        <li>No images, tables, or bi-column layout</li>
+        <li>Auto space-cleaner normalises PDF extraction quirks</li>
+      </ul>
+      <p class="muted">Only the suggestions shown above are given. For personalised help, fill the form and then message on WhatsApp.</p>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <small>ATS Resume Checker — client-side. Deploy on Vercel by placing these files in a GitHub repo.</small>
+  </footer>
 
   <script src="script.js"></script>
 </body>
