@@ -1,42 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ATS Resume Checker</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REZoom - Resume Score Checker</title>
+    <link rel="stylesheet" href="resume_checker.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <h1>ATS Resume Checker</h1>
-
-    <textarea id="resumeInput" placeholder="Paste your resume text here or upload below"></textarea>
-
-    <div class="upload-section">
-      <input type="file" id="fileInput" accept=".pdf,.docx,.txt">
+    <div class="container">
+        <img src="https://placehold.co/150x150/6c5ce7/ffffff?text=REZoom" alt="REZoom Logo" class="rounded-full mb-6">
+        <h1>ATS Resume Checker</h1>
+        <textarea id="resumeInput" placeholder="Paste your resume text here or upload below"></textarea>
+        <div class="upload-section">
+            <input type="file" id="fileInput" accept=".pdf,.docx,.txt">
+        </div>
+        <div class="button-group">
+            <button id="checkBtn">Check ATS</button>
+            <button id="clearBtn" class="clear">Clear</button>
+        </div>
+        <div id="resultSection">
+            <h2>ATS Score: <span id="atsScore">-</span></h2>
+            <p id="atsFeedback"></p>
+            <a id="formBtn" href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header"
+               target="_blank" class="form-button">📋 Fill Consultation Form</a>
+            <a id="whatsappBtn" href="#" target="_blank">📲 Message us on WhatsApp</a>
+        </div>
+        <div class="suggestion">
+            <p><strong>Properly mention address & contact details, use metrics in work experience, check for spaces & grammar issues.</strong></p>
+            <p>Resume is key to your career transformation and getting your dream job.</p>
+            <p><strong>Book your consultation</strong> by filling out the form and contact us at <a href="tel:+916005795693">+91 6005795693</a> to get your ATS-crafted resume.</p>
+        </div>
     </div>
-
-    <div class="button-group">
-      <button id="checkBtn">Check ATS</button>
-      <button id="clearBtn" class="clear">Clear</button>
-    </div>
-
-    <div id="resultSection">
-      <h2>ATS Score: <span id="atsScore">-</span></h2>
-      <p id="atsFeedback"></p>
-      <a id="formBtn" href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header" 
-         target="_blank" class="form-button">📋 Fill Consultation Form</a>
-      <a id="whatsappBtn" href="#" target="_blank" style="display:none;">📲 Message us on WhatsApp</a>
-    </div>
-
-    <div class="suggestion">
-      <p><strong>Properly mention address & contact details, use metrics in work experience, check for spaces & grammar issues.</strong></p>
-      <p>Resume is key to your career transformation and getting your dream job.</p>
-      <p><strong>Book your consultation</strong> by filling out the form and contact us at <a href="tel:+916005795693">+91 6005795693</a> to get your ATS-crafted resume.</p>
-    </div>
-  </div>
-  <script src="script.js"></script>
 </body>
 </html>
