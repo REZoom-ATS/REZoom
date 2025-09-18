@@ -1,10 +1,13 @@
-const resumeInput = document.getElementById("resumeInput");
+const dropArea = document.getElementById("drop-area");
 const fileInput = document.getElementById("fileInput");
 const checkBtn = document.getElementById("checkBtn");
 const clearBtn = document.getElementById("clearBtn");
 const atsScore = document.getElementById("atsScore");
 const atsFeedback = document.getElementById("atsFeedback");
 const whatsappBtn = document.getElementById("whatsappBtn");
+const parsedContentContainer = document.getElementById("parsedContentContainer");
+const parsedContent = document.getElementById("parsedContent");
+const resultSection = document.getElementById("resultSection");
 
 // Auto space cleaner
 function normalizeSpaces(text) {
@@ -73,11 +76,48 @@ function calculateATS(text) {
   return { score: Math.max(score, 0), issues };
 }
 
-// File parsing
-fileInput.addEventListener("change", async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+// Drag and drop functionality
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+  dropArea.addEventListener(eventName, preventDefaults, false);
+});
 
+function preventDefaults(e) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+  dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+  dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
+});
+
+dropArea.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+  const dt = e.dataTransfer;
+  const file = dt.files[0];
+  if (file) {
+    parseFile(file);
+  }
+}
+
+dropArea.addEventListener('click', () => {
+  fileInput.click();
+});
+
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    parseFile(file);
+  }
+});
+
+
+// File parsing
+async function parseFile(file) {
   if (file.type === "application/pdf") {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -87,22 +127,26 @@ fileInput.addEventListener("change", async (e) => {
       const text = await page.getTextContent();
       textContent += text.items.map((item) => item.str).join(" ") + "\n";
     }
-    resumeInput.value = normalizeSpaces(textContent);
+    parsedContent.value = normalizeSpaces(textContent);
   } else if (file.name.endsWith(".docx")) {
     const arrayBuffer = await file.arrayBuffer();
     const result = await mammoth.extractRawText({ arrayBuffer });
-    resumeInput.value = normalizeSpaces(result.value);
+    parsedContent.value = normalizeSpaces(result.value);
   } else {
     const text = await file.text();
-    resumeInput.value = normalizeSpaces(text);
+    parsedContent.value = normalizeSpaces(text);
   }
-});
+  parsedContentContainer.style.display = "block";
+  resultSection.style.display = "none";
+}
+
 
 // Check ATS Button
 checkBtn.addEventListener("click", () => {
-  const text = normalizeSpaces(resumeInput.value);
+  const text = normalizeSpaces(parsedContent.value);
   if (!text) {
-    atsFeedback.innerText = "Please paste or upload a resume.";
+    atsFeedback.innerText = "Please upload a resume to check.";
+    resultSection.style.display = "block";
     return;
   }
 
@@ -111,12 +155,15 @@ checkBtn.addEventListener("click", () => {
   atsFeedback.innerText = issues.length > 0 ? issues.join(" | ") : "Excellent! Your resume meets ATS standards.";
   whatsappBtn.href = "https://wa.me/916005795693?text=I%20want%20to%20avail%20ATS%20resume%20services";
   whatsappBtn.style.display = "inline-block";
+  resultSection.style.display = "block";
 });
 
 // Clear Button
 clearBtn.addEventListener("click", () => {
-  resumeInput.value = "";
+  parsedContent.value = "";
   atsScore.innerText = "-";
   atsFeedback.innerText = "";
   whatsappBtn.style.display = "none";
+  parsedContentContainer.style.display = "none";
+  resultSection.style.display = "none";
 });
