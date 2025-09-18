@@ -4,18 +4,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ATS Resume Checker</title>
+  <!-- Link to external CSS file -->
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+  <!-- Google Fonts for the 'Inter' font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="container">
-    <h1>ATS Resume Checker</h1>
+    <div class="logo-container">
+      <!-- SVG for the key icon to match the image theme -->
+      <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.33 13.06l-2.67-2.67c-.2-.2-.48-.31-.76-.31H9.33c-.28 0-.55.11-.76.31l-2.67 2.67C5.51 16.51 5 17.65 5 18.84V20h14v-1.16c0-1.19-.51-2.33-1.46-3.22zm-3.33-4.06c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"/>
+      </svg>
+      <h1 class="main-heading">ATS Resume Checker</h1>
+    </div>
 
-    <textarea id="resumeInput" placeholder="Paste your resume text here or upload below"></textarea>
+    <!-- Drag and Drop/File Input Section -->
+    <div id="drop-area" class="upload-area">
+      <div class="upload-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+        </svg>
+      </div>
+      <p>Drag and drop your file here or click to select</p>
+      <input type="file" id="fileInput" accept=".pdf,.docx,.txt" hidden>
+    </div>
 
-    <div class="upload-section">
-      <input type="file" id="fileInput" accept=".pdf,.docx,.txt">
+    <!-- Container to show parsed content -->
+    <div id="parsedContentContainer" style="display:none;">
+      <h3>Parsed Resume Content:</h3>
+      <textarea id="parsedContent" readonly></textarea>
     </div>
 
     <div class="button-group">
@@ -23,7 +45,7 @@
       <button id="clearBtn" class="clear">Clear</button>
     </div>
 
-    <div id="resultSection">
+    <div id="resultSection" style="display:none;">
       <h2>ATS Score: <span id="atsScore">-</span></h2>
       <p id="atsFeedback"></p>
       <a id="formBtn" href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header" 
