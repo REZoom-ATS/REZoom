@@ -1,64 +1,467 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ATS Resume Checker</title>
-  <!-- Link to external CSS file -->
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
-  <!-- Google Fonts for the 'Inter' font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Hacks Landing Page</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React Libraries -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel to compile JSX in the browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="logo-container">
-      <!-- SVG for the key icon to match the image theme -->
-      <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.33 13.06l-2.67-2.67c-.2-.2-.48-.31-.76-.31H9.33c-.28 0-.55.11-.76.31l-2.67 2.67C5.51 16.51 5 17.65 5 18.84V20h14v-1.16c0-1.19-.51-2.33-1.46-3.22zm-3.33-4.06c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"/>
-      </svg>
-      <h1 class="main-heading">ATS Resume Checker</h1>
-    </div>
+    <div id="root"></div>
 
-    <!-- Drag and Drop/File Input Section -->
-    <div id="drop-area" class="upload-area">
-      <div class="upload-icon-small">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-        </svg>
-      </div>
-      <p>Drag and drop your file here or click to select</p>
-      <input type="file" id="fileInput" accept=".pdf,.docx,.txt" hidden>
-    </div>
+    <script type="text/babel">
+        // --- React Application Code Starts Here ---
+        const { useEffect, useRef, useState } = React;
 
-    <!-- Container to show parsed content -->
-    <div id="parsedContentContainer" style="display:none;">
-      <h3>Parsed Resume Content:</h3>
-      <textarea id="parsedContent" readonly></textarea>
-    </div>
+        // --- Helper Components (recreated to be self-contained) ---
 
-    <div class="button-group">
-      <button id="checkBtn">Check ATS</button>
-      <button id="clearBtn" class="clear">Clear</button>
-    </div>
+        // Icon component to avoid external dependencies like lucide-react
+        const ArrowRight = ({ className }) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+          >
+            <path d="M5 12h14" />
+            <path d="m12 5 7 7-7 7" />
+          </svg>
+        );
 
-    <div id="resultSection" style="display:none;">
-      <h2>ATS Score: <span id="atsScore">-</span></h2>
-      <p id="atsFeedback"></p>
-      <a id="formBtn" href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header" 
-         target="_blank" class="form-button">📋 Fill Consultation Form</a>
-      <a id="whatsappBtn" href="#" target="_blank" style="display:none;">📲 Message us on WhatsApp</a>
-    </div>
+        const UnlockKey = ({ className }) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={className}>
+                    <path d="m19.5 10.5-8-8a1 1 0 0 0-1.4 0l-1.1 1.1a1 1 0 0 0 0 1.4l8 8a1 1 0 0 0 1.4 0l1.1-1.1a1 1 0 0 0 0-1.4z"/><path d="m15 5-2 2"/><path d="m13 14 5-5"/><path d="m2 18 3-3"/><path d="m6 14-1 1"/><path d="m12 8-2 2"/><circle cx="8" cy="16" r="2"/>
+            </svg>
+        );
 
-    <div class="suggestion">
-      <p><strong>Properly mention address & contact details, use metrics in work experience, check for spaces & grammar issues.</strong></p>
-      <p>Resume is key to your career transformation and getting your dream job.</p>
-      <p><strong>Book your consultation</strong> by filling out the form and contact us at <a href="tel:+916005795693">+91 6005795693</a> to get your ATS-crafted resume.</p>
-    </div>
-  </div>
-  <script src="script.js"></script>
+
+        // Recreated Button component
+        const Button = ({ children, className, ...props }) => (
+          <button className={`inline-flex items-center justify-center rounded-2xl font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${className}`} {...props}>
+            {children}
+          </button>
+        );
+
+        // Recreated Card components
+        const Card = ({ children, className }) => (
+          <div className={`bg-white rounded-2xl shadow-md ${className}`}>
+            {children}
+          </div>
+        );
+
+        const CardContent = ({ children, className }) => (
+          <div className={`p-6 ${className}`}>
+            {children}
+          </div>
+        );
+
+        // Custom hook for scroll-in-view animation
+        const useInView = (options) => {
+            const [inView, setInView] = useState(false);
+            const ref = useRef(null);
+
+            useEffect(() => {
+                const observer = new IntersectionObserver(([entry]) => {
+                    if (entry.isIntersecting) {
+                        setInView(true);
+                        if (ref.current) {
+                            observer.unobserve(ref.current);
+                        }
+                    }
+                }, options);
+
+                if (ref.current) {
+                    observer.observe(ref.current);
+                }
+
+                return () => {
+                    if (ref.current) {
+                        observer.unobserve(ref.current);
+                    }
+                };
+            }, [ref, options]);
+
+            return [ref, inView];
+        };
+
+
+        // --- ATS Checker Page Component ---
+        const ATSCheckerPage = ({ onBack }) => {
+            const [parsedText, setParsedText] = useState("");
+            const [atsScore, setAtsScore] = useState(null);
+            const [atsFeedback, setAtsFeedback] = useState("");
+            const [isLoading, setIsLoading] = useState(false);
+            const fileInputRef = useRef(null);
+
+            useEffect(() => {
+                // Dynamically load external scripts for PDF and DOCX parsing
+                const pdfScript = document.createElement('script');
+                pdfScript.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js";
+                pdfScript.async = true;
+                document.body.appendChild(pdfScript);
+
+                const mammothScript = document.createElement('script');
+                mammothScript.src = "https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js";
+                mammothScript.async = true;
+                document.body.appendChild(mammothScript);
+
+                return () => {
+                    document.body.removeChild(pdfScript);
+                    document.body.removeChild(mammothScript);
+                }
+            }, []);
+
+            const normalizeSpaces = (text) => text.replace(/\s+/g, " ").trim();
+            
+            const grammarCheck = (text) => {
+                const grammarIssues = (text.match(/\bis\b\s+are\b|\bhas\b\s+have\b/gi) || []).length;
+                return grammarIssues;
+            };
+
+            const calculateATS = (text) => {
+                let score = 100;
+                let issues = [];
+
+                // Check name
+                if (!/^[A-Z][a-z]+/.test(text.split("\n")[0])) {
+                    score -= 10;
+                    issues.push("Name not detected at top");
+                }
+
+                // Check contact info
+                if (!text.match(/\+?\d{7,}/) || !text.match(/@/) || !text.match(/linkedin\.com|http/)) {
+                    score -= 15;
+                    issues.push("Missing phone/email/linkedin");
+                }
+
+                // Professional Summary check
+                const summaryMatch = text.match(/Professional Summary([\s\S]*?)(Key Skills|Work Experience|Education)/i);
+                if (!summaryMatch) {
+                    score -= 20;
+                    issues.push("No professional summary found");
+                } else {
+                    const summary = summaryMatch[1];
+                    const sentenceCount = summary.split(/[.!?]/).filter(Boolean).length;
+                    if (sentenceCount > 6) {
+                        score -= 5;
+                        issues.push("Professional summary is too long");
+                    }
+                    const grammarErrors = grammarCheck(summary);
+                    if (grammarErrors > 0) {
+                        score -= grammarErrors * 2;
+                        issues.push(`${grammarErrors} potential grammar issues in summary`);
+                    }
+                }
+
+                // Work Experience check
+                const workExperienceMatch = text.match(/Work Experience([\s\S]*?)(Education|Skills|Projects|$)/i);
+                if (workExperienceMatch) {
+                    const workText = workExperienceMatch[1];
+                    const bullets = workText.match(/[•*–-]/g) || [];
+                    if (bullets.length < 3) {
+                        score -= 10;
+                        issues.push("Use more bullet points in work experience");
+                    }
+                    if (!/Manager|Developer|Engineer|Analyst|Intern|Merchandiser|Category/i.test(workText)) {
+                        score -= 5;
+                        issues.push("Job roles may not be clear or missing");
+                    }
+                } else {
+                    score -= 15;
+                    issues.push("Work experience section missing or not found");
+                }
+
+                return { score: Math.max(score, 0), issues };
+            };
+
+            const handleFileParse = async (file) => {
+                if (!file) return;
+                setIsLoading(true);
+                setAtsScore(null);
+                setAtsFeedback("");
+
+                try {
+                    let textContent = "";
+                    if (file.type === "application/pdf") {
+                        const pdfjsLib = window.pdfjsLib;
+                        if (!pdfjsLib) throw new Error("PDF.js not loaded");
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js`;
+                        const arrayBuffer = await file.arrayBuffer();
+                        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const text = await page.getTextContent();
+                            textContent += text.items.map((item) => item.str).join(" ") + "\n";
+                        }
+                    } else if (file.name.endsWith(".docx")) {
+                        const mammoth = window.mammoth;
+                        if (!mammoth) throw new Error("Mammoth.js not loaded");
+                        const arrayBuffer = await file.arrayBuffer();
+                        const result = await mammoth.extractRawText({ arrayBuffer });
+                        textContent = result.value;
+                    } else {
+                        textContent = await file.text();
+                    }
+                    setParsedText(normalizeSpaces(textContent));
+                } catch (error) {
+                    console.error("File parsing error:", error);
+                    setAtsFeedback("Error parsing file. Please try a different file.");
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+            
+            const handleCheckATS = () => {
+                if (!parsedText) {
+                    setAtsFeedback("Please upload a resume first.");
+                    return;
+                }
+                const { score, issues } = calculateATS(parsedText);
+                setAtsScore(score);
+                setAtsFeedback(issues.length > 0 ? issues.join(" | ") : "Excellent! Your resume meets key ATS standards.");
+            };
+
+            const CircleProgress = ({ score }) => {
+                const radius = 60;
+                const circumference = 2 * Math.PI * radius;
+                const offset = circumference - (score / 100) * circumference;
+                const color = score > 75 ? 'stroke-green-500' : score > 50 ? 'stroke-yellow-500' : 'stroke-red-500';
+
+                return (
+                    <div className="relative flex items-center justify-center w-40 h-40">
+                        <svg className="transform -rotate-90 w-full h-full">
+                            <circle className="text-gray-200" strokeWidth="12" stroke="currentColor" fill="transparent" r={radius} cx="50%" cy="50%" />
+                            <circle className={color} strokeWidth="12" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" fill="transparent" r={radius} cx="50%" cy="50%" style={{transition: 'stroke-dashoffset 0.5s ease-in-out'}} />
+                        </svg>
+                        <span className="absolute text-4xl font-bold">{score}</span>
+                    </div>
+                );
+            };
+
+            return (
+                <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-24">
+                    <Button onClick={onBack} className="absolute top-5 left-5 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2">&larr; Back</Button>
+                    <h1 className="text-4xl font-extrabold text-center text-orange-600 mb-8">Free ATS Resume Checker</h1>
+                    
+                    <div 
+                        className="w-full p-8 border-2 border-dashed border-gray-300 rounded-2xl text-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-colors"
+                        onClick={() => fileInputRef.current.click()}
+                        onDrop={(e) => { e.preventDefault(); handleFileParse(e.dataTransfer.files[0]); }}
+                        onDragOver={(e) => e.preventDefault()}
+                    >
+                        <input type="file" ref={fileInputRef} onChange={(e) => handleFileParse(e.target.files[0])} accept=".pdf,.docx,.txt" className="hidden" />
+                        <p className="text-gray-600">{isLoading ? "Processing..." : (parsedText ? "File loaded. Ready to check." : "Drag & drop your resume here, or click to select")}</p>
+                    </div>
+
+                    <div className="text-center mt-6">
+                        <Button onClick={handleCheckATS} disabled={isLoading || !parsedText} className="bg-orange-500 hover:bg-orange-600 text-white text-xl px-8 py-4 disabled:bg-gray-400">Check ATS Score</Button>
+                    </div>
+
+                    {atsScore !== null && (
+                        <div className="mt-12 text-center">
+                            <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+                                <div className="flex flex-col items-center">
+                                    <h2 className="text-2xl font-bold mb-4">Your ATS Score</h2>
+                                    <CircleProgress score={atsScore} />
+                                    <p className="mt-4 text-gray-600 max-w-sm">{atsFeedback}</p>
+                                </div>
+                                <div className="w-full md:w-1/2 bg-white p-6 rounded-2xl shadow-md">
+                                     <h3 className="text-xl font-bold mb-4 text-left">Resume Analysis</h3>
+                                     <div className="space-y-3 text-left">
+                                        {['Content', 'Grammar', 'Metrics', 'Skills'].map(item => (
+                                            <div key={item}>
+                                                <span className="font-semibold">{item}</span>
+                                                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                                   <div className="bg-orange-500 h-2.5 rounded-full" style={{width: `${Math.floor(Math.random() * (95 - 60 + 1) + 60)}%`}}></div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                     </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-10 bg-orange-50 p-6 rounded-2xl">
+                                 <h3 className="text-2xl font-bold text-orange-600">Take the Next Step</h3>
+                                 <p className="my-3 text-gray-700">Get a professionally crafted, ATS-friendly resume.</p>
+                                 <div className="flex flex-wrap justify-center gap-4">
+                                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header" target="_blank" rel="noopener noreferrer">
+                                        <Button className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-3">📋 Fill Consultation Form</Button>
+                                    </a>
+                                    <a href="https://wa.me/916005795693?text=I'm interested in your resume services after checking my ATS score." target="_blank" rel="noopener noreferrer">
+                                        <Button className="bg-green-500 hover:bg-green-600 text-white px-6 py-3">📲 Chat on WhatsApp</Button>
+                                    </a>
+                                 </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+
+        // --- Original Landing Page Content ---
+        const LandingPageContent = () => {
+          const sections = [
+            {
+              title: "The Ghosting Pro 👻",
+              text: "You craft the perfect email, hit send... and are met with digital crickets. You check your outbox. Yes, it sent. Maybe their server is down? For a month? Right.",
+              img: "https://source.unsplash.com/400x300/?ghost,sad,computer",
+            },
+            {
+              title: "The A.I. Gatekeeper 🤖",
+              text: "You spent hours tailoring your CV with 'synergy' and 'paradigm shift.' An algorithm scanned it in 0.2 seconds and decided you weren't 'a cultural fit.' The robot has spoken.",
+              img: "https://source.unsplash.com/400x300/?robot,office,fail",
+            },
+            {
+              title: "The Secret Sauce Revealed 🍔",
+              text: "Our PPT hacks are cheat codes for interviews. We give you proven templates and scripts to make HRs stop asking questions and start asking for your desired salary!",
+              img: "https://source.unsplash.com/400x300/?secret,success,idea",
+            },
+            {
+              title: "Turn Rejections Into Offers 💼",
+              text: "With this step-by-step game plan, broken down into byte-sized micro stories, you'll be hearing 'When can you join?' instead of 'We'll keep your resume on file.'",
+              img: "https://source.unsplash.com/400x300/?career,celebration,job",
+            },
+          ];
+
+          return (
+            <main className="max-w-4xl w-full px-4 sm:px-6 py-16 sm:py-24 space-y-12">
+              <header className="text-center space-y-4">
+                <h1 className="text-4xl sm:text-5xl font-extrabold text-orange-600">
+                  Get HR to Say – "Salary Kitni Lega?" 💰
+                </h1>
+                <p className="text-lg sm:text-xl text-gray-700 max-w-2xl mx-auto">
+                  Funny, relatable, and super actionable hacks to turn rejections into offer letters.
+                </p>
+              </header>
+              <div className="space-y-16">
+                {sections.map((sec, i) => {
+                  const [ref, inView] = useInView({ threshold: 0.2, triggerOnce: true });
+                  const isEven = i % 2 === 0;
+                  return (
+                    <div
+                      key={i}
+                      ref={ref}
+                      className={`transition-all duration-700 ease-out ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                    >
+                      <div className={`grid md:grid-cols-2 gap-6 items-center`}>
+                        <img
+                          src={sec.img}
+                          alt={sec.title}
+                          className={`rounded-2xl shadow-lg w-full h-64 object-cover ${isEven ? 'md:order-1' : 'md:order-2'}`}
+                        />
+                        <div className={isEven ? 'md:order-2' : 'md:order-1'}>
+                          <Card>
+                            <CardContent>
+                              <h2 className="text-2xl font-bold mb-3 text-orange-500">{sec.title}</h2>
+                              <p className="text-gray-700 text-base leading-relaxed">{sec.text}</p>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <footer className="text-center pt-10">
+                <a
+                  href="https://rzp.io/rzp/jalib"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block"
+                >
+                  <Button className="bg-orange-500 hover:bg-orange-600 text-white text-xl px-8 py-5 rounded-2xl shadow-lg transform transition-transform hover:scale-110">
+                    Unlock Now <UnlockKey className="ml-2 w-6 h-6" />
+                  </Button>
+                </a>
+              </footer>
+            </main>
+          );
+        };
+
+        // --- Main App Component ---
+        function App() {
+          const [view, setView] = useState('landing'); // 'landing' or 'ats'
+
+          useEffect(() => {
+            document.title = view === 'landing' 
+              ? "Crack HR Interviews - Pay & Unlock"
+              : "Free ATS Resume Checker";
+          }, [view]);
+
+          return (
+            <React.Fragment>
+              <style>{`
+                @keyframes pulse-glow {
+                    0%, 100% {
+                        transform: scale(1);
+                        box-shadow: 0 0 8px #f97316, 0 0 16px #f97316;
+                    }
+                    50% {
+                        transform: scale(1.08);
+                        box-shadow: 0 0 16px #fb923c, 0 0 32px #fb923c;
+                    }
+                }
+                .animated-pay-button {
+                    animation: pulse-glow 2.5s infinite ease-in-out;
+                }
+              `}</style>
+              <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white flex flex-col items-center relative font-sans text-gray-800">
+                
+                {/* Sticky Header Buttons */}
+                <div className="fixed top-4 right-4 z-50 flex gap-4">
+                     <Button onClick={() => setView('ats')} className="bg-white hover:bg-gray-100 text-orange-600 font-bold text-lg rounded-2xl shadow-lg px-6 py-4 border border-orange-200">
+                        Check ATS Score for Free
+                     </Button>
+                    <a
+                      href="https://rzp.io/rzp/jalib"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button className="animated-pay-button bg-orange-500 hover:bg-orange-600 text-white text-lg rounded-2xl shadow-lg px-6 py-4">
+                        Continue to Pay <ArrowRight className="ml-2 w-5 h-5" />
+                      </Button>
+                    </a>
+                </div>
+                
+                {view === 'landing' ? (
+                  <LandingPageContent />
+                ) : (
+                  <ATSCheckerPage onBack={() => setView('landing')} />
+                )}
+
+              </div>
+            </React.Fragment>
+          );
+        }
+
+        // --- Render the App ---
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+
+    </script>
 </body>
 </html>
