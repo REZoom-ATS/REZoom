@@ -428,10 +428,10 @@
                     animation: pulse-glow 2.5s infinite ease-in-out;
                 }
               `}</style>
-              <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white flex flex-col items-center relative font-sans text-gray-800">
+              <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white flex flex-col items-center relative font-sans text-gray-800 pt-48 sm:pt-0">
                 
                 {/* Sticky Header Buttons */}
-                <div className="fixed top-4 right-4 z-50 flex gap-4">
+                <div className="fixed top-4 right-4 z-50 flex flex-col sm:flex-row gap-4">
                      <Button onClick={() => setView('ats')} className="bg-white hover:bg-gray-100 text-orange-600 font-bold text-lg rounded-2xl shadow-lg px-6 py-4 border border-orange-200">
                         Check ATS Score for Free
                      </Button>
