@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- SEO: Specify language and region for better targeting -->
 <html lang="en-IN">
-<meta name="google-site-verification" content="P7Q2IMPTH-f9ETUIOOyGQlbu5wQxs2S4T9UNNaPysCg">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -11,6 +11,9 @@
 
     <!-- META TITLE: Primary keyword first. Under 60 characters. This is the most important tag. -->
     <title>Free ATS Resume Checker & Expert Resume Writing Service | Jalib</title>
+
+    <!-- GOOGLE SITE VERIFICATION: Confirms your ownership of the site -->
+    <meta name="google-site-verification" content="P7Q2IMPTH-f9ETUIOOyGQlbu5wQxs2S4T9UNNaPysCg" />
 
     <!-- META DESCRIPTION: Your 'ad' on Google. Under 160 characters, compelling, with keywords. -->
     <meta name="description" content="Get a free ATS score in seconds! Optimize your resume to beat the bots and land more interviews. Professional resume writing and tailoring services available.">
@@ -341,7 +344,7 @@
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center bg-white p-8 rounded-2xl shadow-lg">
                             <div className="flex justify-center md:col-span-1">
                                 <img 
-                                    src="assets/YOUR_PHOTO.png" // Placeholder, replace with your photo URL e.g., assets/YOUR_PHOTO.png
+                                    src="https://placehold.co/192x192/FFEDD5/F97316?text=Jalib" // Placeholder, replace with your photo URL e.g., assets/your-photo.jpg
                                     alt="Jalib, professional resume writer and career consultant." // SEO: Optimized Alt Text
                                     className="w-48 h-48 rounded-full object-cover shadow-md border-4 border-orange-200"
                                 />
@@ -383,10 +386,24 @@
             const [view, setView] = useState('landing'); 
 
             useEffect(() => {
-                // Dynamically update title based on view. Better SEO would use separate pages.
-                document.title = view === 'landing' 
-                    ? "Free ATS Resume Checker & Expert Resume Writing Service | Jalib"
-                    : "Check Your ATS Score for Free | Jalib Resume Optimizer";
+                // ANALYTICS UPDATE: Manually track virtual pageviews
+                let title = "";
+                let virtualPath = "/";
+
+                if (view === 'landing') {
+                    title = "Free ATS Resume Checker & Expert Resume Writing Service | Jalib";
+                    virtualPath = "/";
+                } else {
+                    title = "Check Your ATS Score for Free | Jalib Resume Optimizer";
+                    virtualPath = "/ats-checker"; // A virtual path for analytics
+                }
+
+                document.title = title;
+
+                // Manually track pageviews for this SPA-like behavior
+                if (window.va) {
+                    window.va('track', 'pageview', { path: virtualPath });
+                }
             }, [view]);
 
             return (
@@ -427,3 +444,4 @@
     </script>
 </body>
 </html>
+
