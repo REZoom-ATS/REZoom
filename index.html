@@ -125,30 +125,13 @@
         // --- React Application Code Starts Here ---
         const { useEffect, useRef, useState } = React;
 
-        // --- Helper Components (recreated to be self-contained) ---
-        const ArrowRight = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>);
-        const UnlockKey = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m19.5 10.5-8-8a1 1 0 0 0-1.4 0l-1.1 1.1a1 1 0 0 0 0 1.4l8 8a1 1 0 0 0 1.4 0l1.1-1.1a1 1 0 0 0 0-1.4z"/><path d="m15 5-2 2"/><path d="m13 14 5-5"/><path d="m2 18 3-3"/><path d="m6 14-1 1"/><path d="m12 8-2 2"/><circle cx="8" cy="16" r="2"/></svg>);
+        // --- Helper Components ---
+        const ArrowDown = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>);
         const WhatsAppIcon = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.89-5.451 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>);
-        const Button = ({ children, className, ...props }) => (<button className={`inline-flex items-center justify-center rounded-2xl font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${className}`} {...props}>{children}</button>);
-        const Card = ({ children, className }) => (<div className={`bg-white rounded-2xl shadow-md ${className}`}>{children}</div>);
-        const CardContent = ({ children, className }) => (<div className={`p-6 ${className}`}>{children}</div>);
-        const useInView = (options) => {
-            const [inView, setInView] = useState(false);
-            const ref = useRef(null);
-            useEffect(() => {
-                const observer = new IntersectionObserver(([entry]) => {
-                    if (entry.isIntersecting) {
-                        setInView(true);
-                        if (ref.current) observer.unobserve(ref.current);
-                    }
-                }, options);
-                if (ref.current) observer.observe(ref.current);
-                return () => { if (ref.current) observer.unobserve(ref.current); };
-            }, [ref, options]);
-            return [ref, inView];
-        };
+        const UnlockKey = ({ className }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>);
+        const Button = ({ children, className, ...props }) => (<button className={`inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 ${className}`} {...props}>{children}</button>);
 
-        // --- ATS Checker Page Component (Original functionality preserved) ---
+        // --- ATS Checker Page Component (Original functionality preserved, adapted for overlay) ---
         const ATSCheckerPage = ({ onBack }) => {
             const [parsedText, setParsedText] = useState("");
             const [atsScore, setAtsScore] = useState(null);
@@ -222,215 +205,278 @@
                 const radius = 60; const circumference = 2 * Math.PI * radius;
                 const offset = circumference - (score / 100) * circumference;
                 const color = score > 75 ? 'stroke-green-500' : score > 50 ? 'stroke-yellow-500' : 'stroke-red-500';
-                return (<div className="relative flex items-center justify-center w-40 h-40"><svg className="transform -rotate-90 w-full h-full"><circle className="text-gray-200" strokeWidth="12" stroke="currentColor" fill="transparent" r={radius} cx="50%" cy="50%" /><circle className={color} strokeWidth="12" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" fill="transparent" r={radius} cx="50%" cy="50%" style={{transition: 'stroke-dashoffset 0.5s ease-in-out'}} /></svg><span className="absolute text-4xl font-bold">{score}</span></div>);
+                return (<div className="relative flex items-center justify-center w-40 h-40"><svg className="transform -rotate-90 w-full h-full"><circle className="text-gray-200" strokeWidth="12" stroke="currentColor" fill="transparent" r={radius} cx="50%" cy="50%" /><circle className={color} strokeWidth="12" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" fill="transparent" r={radius} cx="50%" cy="50%" style={{transition: 'stroke-dashoffset 0.5s ease-in-out'}} /></svg><span className="absolute text-4xl font-bold text-gray-800">{score}</span></div>);
             };
             return (
-                // SEO: Use <section> tag for the ATS checker tool
-                <section aria-labelledby="ats-checker-title" className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-24">
-                    <Button onClick={onBack} className="absolute top-5 left-5 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2">&larr; Back to Home</Button>
-                    <h1 id="ats-checker-title" className="text-4xl font-extrabold text-center text-orange-600 mb-8">Free ATS Resume Checker</h1>
-                    <div className="w-full p-8 border-2 border-dashed border-gray-300 rounded-2xl text-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-colors" onClick={() => fileInputRef.current.click()} onDrop={(e) => { e.preventDefault(); handleFileParse(e.dataTransfer.files[0]); }} onDragOver={(e) => e.preventDefault()}>
-                        <input type="file" ref={fileInputRef} onChange={(e) => handleFileParse(e.target.files[0])} accept=".pdf,.docx,.txt" className="hidden" />
-                        <p className="text-gray-600">{isLoading ? "Processing..." : (parsedText ? "File loaded. Ready to check." : "Drag & drop your resume here, or click to select")}</p>
-                    </div>
-                    <div className="text-center mt-6">
-                        <Button onClick={handleCheckATS} disabled={isLoading || !parsedText} className="bg-orange-500 hover:bg-orange-600 text-white text-xl px-8 py-4 disabled:bg-gray-400">Check My ATS Score</Button>
-                    </div>
-                    {atsScore !== null && (
-                        <div className="mt-12 text-center">
-                            <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-                                <div className="flex flex-col items-center">
-                                    <h2 className="text-2xl font-bold mb-4">Your ATS Score</h2>
-                                    <CircleProgress score={atsScore} />
-                                    <p className="mt-4 text-gray-600 max-w-sm">{atsFeedback}</p>
+                <section aria-labelledby="ats-checker-title" className="w-full h-full bg-white bg-opacity-90 backdrop-blur-sm p-4 sm:p-6 lg:p-8 overflow-y-auto">
+                    <Button onClick={onBack} className="absolute top-4 left-4 bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 shadow-md">&larr; Back to Home</Button>
+                    <div className="w-full max-w-4xl mx-auto py-16">
+                        <h1 id="ats-checker-title" className="text-3xl md:text-4xl font-extrabold text-center text-orange-600 mb-8">Free ATS Resume Checker</h1>
+                        <div className="w-full p-8 border-2 border-dashed border-gray-300 rounded-2xl text-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-colors bg-white" onClick={() => fileInputRef.current.click()} onDrop={(e) => { e.preventDefault(); handleFileParse(e.dataTransfer.files[0]); }} onDragOver={(e) => e.preventDefault()}>
+                            <input type="file" ref={fileInputRef} onChange={(e) => handleFileParse(e.target.files[0])} accept=".pdf,.docx,.txt" className="hidden" />
+                            <p className="text-gray-600">{isLoading ? "Processing..." : (parsedText ? "File loaded. Ready to check." : "Drag & drop your resume here, or click to select")}</p>
+                        </div>
+                        <div className="text-center mt-6">
+                            <Button onClick={handleCheckATS} disabled={isLoading || !parsedText} className="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 py-3 disabled:bg-gray-400">Check My ATS Score</Button>
+                        </div>
+                        {atsScore !== null && (
+                            <div className="mt-12 text-center">
+                                <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+                                    <div className="flex flex-col items-center">
+                                        <h2 className="text-2xl font-bold mb-4 text-gray-800">Your ATS Score</h2>
+                                        <CircleProgress score={atsScore} />
+                                        <p className="mt-4 text-gray-600 max-w-sm">{atsFeedback}</p>
+                                    </div>
+                                    <div className="w-full md:w-1/2 bg-white p-6 rounded-2xl shadow-md">
+                                        <h3 className="text-xl font-bold mb-4 text-left text-gray-800">Resume Analysis</h3>
+                                        <div className="space-y-3 text-left">
+                                            {['Content', 'Formatting', 'Keywords', 'Skills'].map(item => (<div key={item}><span className="font-semibold text-gray-700">{item}</span><div className="w-full bg-gray-200 rounded-full h-2.5 mt-1"><div className="bg-orange-500 h-2.5 rounded-full" style={{width: `${Math.floor(Math.random() * (95 - 60 + 1) + 60)}%`}}></div></div></div>))}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="w-full md:w-1/2 bg-white p-6 rounded-2xl shadow-md">
-                                    <h3 className="text-xl font-bold mb-4 text-left">Resume Analysis</h3>
-                                    <div className="space-y-3 text-left">
-                                        {['Content', 'Formatting', 'Keywords', 'Skills'].map(item => (<div key={item}><span className="font-semibold">{item}</span><div className="w-full bg-gray-200 rounded-full h-2.5 mt-1"><div className="bg-orange-500 h-2.5 rounded-full" style={{width: `${Math.floor(Math.random() * (95 - 60 + 1) + 60)}%`}}></div></div></div>))}
+                                <div className="mt-10 bg-orange-50 p-6 rounded-2xl">
+                                    <h3 className="text-2xl font-bold text-orange-600">Improve Your Score & Get Hired</h3>
+                                    <p className="my-3 text-gray-700">Let's craft a resume that gets you the interview. Get expert help now.</p>
+                                    <div className="flex flex-wrap justify-center gap-4">
+                                        <a href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header" target="_blank" rel="noopener noreferrer"><Button className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-3">📋 Request Free Consultation</Button></a>
+                                        <a href="https://wa.me/916005795693?text=I'm interested in your resume services after checking my ATS score." target="_blank" rel="noopener noreferrer"><Button className="bg-green-500 hover:bg-green-600 text-white px-6 py-3">📲 Chat on WhatsApp</Button></a>
                                     </div>
                                 </div>
                             </div>
-                            <div className="mt-10 bg-orange-50 p-6 rounded-2xl">
-                                <h3 className="text-2xl font-bold text-orange-600">Improve Your Score & Get Hired</h3>
-                                <p className="my-3 text-gray-700">Let's craft a resume that gets you the interview. Get expert help now.</p>
-                                <div className="flex flex-wrap justify-center gap-4">
-                                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header" target="_blank" rel="noopener noreferrer"><Button className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-3">📋 Request Free Consultation</Button></a>
-                                    <a href="https://wa.me/916005795693?text=I'm interested in your resume services after checking my ATS score." target="_blank" rel="noopener noreferrer"><Button className="bg-green-500 hover:bg-green-600 text-white px-6 py-3">📲 Chat on WhatsApp</Button></a>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </section>
             );
         };
+        
+        // --- Presentation Slide Component ---
+        const Slide = ({ children, className, id, isArchitect }) => {
+            const [ref, inView] = useInView({ threshold: 0.4, triggerOnce: true });
 
-        // --- SEO-Optimized Landing Page Content ---
-        const LandingPageContent = () => {
-             const sections = [
+            return (
+                <section 
+                    ref={ref}
+                    id={id}
+                    className={`
+                        w-full h-[100dvh] snap-start flex-shrink-0 flex items-center justify-center p-4 relative 
+                        ${className} ${inView ? 'slide-in' : ''}
+                    `}
+                >
+                    <div className={`slide-content w-full max-w-4xl mx-auto text-center ${isArchitect && inView ? 'animate-zoom' : ''}`}>
+                        {children}
+                    </div>
+                </section>
+            );
+        };
+        
+        // Custom hook for Intersection Observer
+        const useInView = (options) => {
+            const [inView, setInView] = useState(false);
+            const ref = useRef(null);
+            useEffect(() => {
+                const observer = new IntersectionObserver(([entry]) => {
+                    if (entry.isIntersecting) {
+                        setInView(true);
+                        if (ref.current) observer.unobserve(ref.current);
+                    }
+                }, options);
+                if (ref.current) observer.observe(ref.current);
+                return () => { if (ref.current) observer.unobserve(ref.current); };
+            }, [ref, options]);
+            return [ref, inView];
+        };
+
+        // --- Main App Component (New Presentation Logic) ---
+        function App() {
+            const [view, setView] = useState('landing');
+            
+            const handleLogoClick = () => {
+                const architectSection = document.getElementById('architect-slide');
+                if (architectSection) {
+                    architectSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            };
+            
+            const slideData = [
                 {
-                    title: "Stuck in the 'Under Review' Abyss? 👻",
-                    text: 'Your resume is your first impression. If it’s not optimized for Applicant Tracking Systems (ATS), it might never be seen by human eyes. Stop getting ghosted by recruiters and let us help you stand out.',
-                    img: "https://i.postimg.cc/xC6bBvm6/Gemini-Generated-Image-5nnzhg5nnzhg5nnz.png",
-                    alt: "A resume sitting in a forgotten digital file cabinet, illustrating getting ghosted by employers after applying for a job."
+                    title: "Beat the Bots & Get Hired",
+                    subtitle: "Stop guessing if your resume is good enough. Get an instant, free ATS score and let our experts craft a resume that lands you interviews.",
+                    img: "https://i.postimg.cc/hjtX8XYT/Gemini-Generated-Image-fiir1wfiir1wfiir.png",
+                    alt: "A robot gatekeeper scanning a resume, symbolizing an Applicant Tracking System (ATS).",
+                    bgColor: "bg-orange-50",
+                    cta: "Check Your ATS Score Free",
+                    action: () => setView('ats')
                 },
                 {
-                    title: "Defeat the A.I. Gatekeeper 🤖",
-                    text: "You're more than just keywords. But an ATS robot scans your resume in seconds for specific formatting and phrases. Our resume optimization service ensures you pass the algorithm and impress the hiring manager.",
-                    img: "https://i.postimg.cc/hjtX8XYT/Gemini-Generated-Image-fiir1wfiir1wfiir.png",
-                    alt: "A robot gatekeeper scanning a resume, symbolizing an Applicant Tracking System (ATS) used by companies."
+                    title: "Stuck in the 'Under Review' Abyss? 👻",
+                    text: 'Your resume is your first impression. If it’s not optimized for Applicant Tracking Systems (ATS), it might never be seen by human eyes. Stop getting ghosted by recruiters.',
+                    img: "https://i.postimg.cc/xC6bBvm6/Gemini-Generated-Image-5nnzhg5nnzhg5nnz.png",
+                    alt: "A resume sitting in a forgotten digital file cabinet, illustrating getting ghosted by employers.",
+                    bgColor: "bg-gray-50"
                 },
                 {
                     title: "Professional Resume Writing That Works 🍔",
-                    text: "We craft a compelling career story for you. Using proven templates and powerful action verbs, we tailor your resume to the specific jobs you want, turning applications into interviews and interviews into offers.",
+                    text: "We craft a compelling career story for you, turning applications into interviews and interviews into offers.",
                     img: "https://i.postimg.cc/V62bYY7t/Gemini-Generated-Image-ukyueukyueukyueu.png",
-                    alt: "A perfectly constructed resume, representing the secret sauce to a successful job application and career advancement."
+                    alt: "A perfectly constructed resume, representing the secret sauce to a successful job application.",
+                    bgColor: "bg-orange-50"
                 },
                 {
-                    title: "Turn Rejections Into Job Offers 💼",
-                    text: "Our step-by-step process helps you highlight your achievements and skills effectively. Get a professionally written, ATS-friendly resume and start hearing 'When can you join?'",
-                    img: "https://i.postimg.cc/ZqCR0Gvx/Gemini-Generated-Image-icb3nsicb3nsicb3.png",
-                    alt: "A person confidently accepting a job offer, showcasing the positive result of a great professional resume."
-                },
+                    id: 'architect-slide',
+                    title: "Meet Your Resume Architect",
+                    text: "I specialize in crafting ATS-friendly resumes that don't just pass the robots, but also captivate human recruiters. My goal is to transform your professional journey from a simple document into a powerful narrative that gets you hired. Let's build your success story together.",
+                    img: "https://placehold.co/400x400/F97316/FFF?text=Jalib",
+                    alt: "Jalib, professional resume writer and career consultant.",
+                    bgColor: "bg-gray-800",
+                    textColor: "text-white",
+                    isFinal: true
+                }
             ];
 
-            return (
-                <main className="max-w-4xl w-full px-4 sm:px-6 py-16 sm:py-24 space-y-12">
-                    <header className="text-center space-y-4">
-                        {/* SEO: H1 is the most important heading, containing the primary keyword. */}
-                        <h1 className="text-4xl sm:text-5xl font-extrabold text-orange-600">
-                            Beat the Bots: Free ATS Resume Checker & Expert Writing
-                        </h1>
-                        {/* SEO: Sub-heading supports the H1 with secondary keywords. */}
-                        <p className="text-lg sm:text-xl text-gray-700 max-w-2xl mx-auto">
-                            Stop guessing if your resume is good enough. Get an instant, free ATS score and let our experts craft a resume that lands you interviews.
-                        </p>
-                    </header>
-                    <div className="space-y-16">
-                        {sections.map((sec, i) => {
-                            const [ref, inView] = useInView({ threshold: 0.2, triggerOnce: true });
-                            const isEven = i % 2 === 0;
-                            return (
-                                // SEO: Use <section> tags for each distinct part of the page content.
-                                <section
-                                    key={i}
-                                    ref={ref}
-                                    aria-labelledby={`section-title-${i}`}
-                                    className={`transition-all duration-700 ease-out ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-                                >
-                                    <div className={`grid md:grid-cols-2 gap-6 items-center`}>
-                                        <img
-                                            src={sec.img}
-                                            alt={sec.alt} // SEO: Descriptive alt text is crucial.
-                                            className={`rounded-2xl shadow-lg w-full h-64 object-cover ${isEven ? 'md:order-1' : 'md:order-2'}`}
-                                            loading="lazy" // SEO: Lazy load images for better performance
-                                        />
-                                        <div className={isEven ? 'md:order-2' : 'md:order-1'}>
-                                            <Card>
-                                                <CardContent>
-                                                    {/* SEO: H2 tags for section headings with related keywords. */}
-                                                    <h2 id={`section-title-${i}`} className="text-2xl font-bold mb-3 text-orange-500">{sec.title}</h2>
-                                                    <p className="text-gray-700 text-base leading-relaxed">{sec.text}</p>
-                                                </CardContent>
-                                            </Card>
-                                        </div>
-                                    </div>
-                                </section>
-                            );
-                        })}
-                    </div>
-                    
-                    <section aria-labelledby="about-me-title" className="py-12">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center bg-white p-8 rounded-2xl shadow-lg">
-                            <div className="flex justify-center md:col-span-1">
-                                <img 
-                                    src="assets/YOUR_PHOTO.png" // Placeholder, replace with your photo URL e.g., assets/your-photo.png
-                                    alt="Jalib, professional resume writer and career consultant." // SEO: Optimized Alt Text
-                                    className="w-48 h-48 rounded-full object-cover shadow-md border-4 border-orange-200"
-                                />
-                            </div>
-                            <div className="md:col-span-2 text-center md:text-left">
-                                <h2 id="about-me-title" className="text-3xl font-bold text-orange-600 mb-3">Meet Your Resume Architect</h2>
-                                <p className="text-gray-700 leading-relaxed">
-                                    I specialize in crafting ATS-friendly resumes that don't just pass the robots, but also captivate human recruiters. My goal is to transform your professional journey from a simple document into a powerful narrative that gets you hired. Let's build your success story together.
-                                </p>
-                            </div>
-                        </div>
-                    </section>
-                    
-                    <section aria-labelledby="cta-title" className="text-center pb-8">
-                         <h2 id="cta-title" className="text-2xl font-bold text-gray-800 mb-4">Ready to Start Getting Interviews?</h2>
-                         <p className="text-gray-600 mb-6">Contact me directly for a free resume review.</p>
-                        <a href="https://wa.me/916005795693" target="_blank" rel="noopener noreferrer" className="inline-block">
-                            <Button className="bg-green-500 hover:bg-green-600 text-white text-xl px-8 py-5 rounded-2xl shadow-lg transform transition-transform hover:scale-110">
-                                Chat on WhatsApp <WhatsAppIcon className="ml-3 w-6 h-6" />
-                            </Button>
-                        </a>
-                    </section>
-
-                    <footer className="text-center pt-10 border-t">
-                        <p className="text-gray-800 font-bold mb-4">Or Unlock Our Premium Interview Hacks:</p>
-                        <a href="https://rzp.io/rzp/jalib" target="_blank" rel="noopener noreferrer" className="inline-block">
-                            <Button className="bg-orange-500 hover:bg-orange-600 text-white text-xl px-8 py-5 rounded-2xl shadow-lg transform transition-transform hover:scale-110">
-                                Unlock Premium Hacks <UnlockKey className="ml-2 w-6 h-6" />
-                            </Button>
-                        </a>
-                        <p className="text-sm text-gray-500 mt-8">&copy; {new Date().getFullYear()} Jalib Resume Services. All Rights Reserved.</p>
-                    </footer>
-                </main>
-            );
-        };
-
-        // --- Main App Component (Logic preserved) ---
-        function App() {
-            const [view, setView] = useState('landing'); 
-
             useEffect(() => {
-                // ANALYTICS UPDATE: Manually track virtual pageviews
-                let title = "";
-                let virtualPath = "/";
-
-                if (view === 'landing') {
-                    title = "Free ATS Resume Checker & Expert Resume Writing Service | Jalib";
-                    virtualPath = "/";
-                } else {
-                    title = "Check Your ATS Score for Free | Jalib Resume Optimizer";
-                    virtualPath = "/ats-checker"; // A virtual path for analytics
-                }
-
+                let title = view === 'landing' 
+                    ? "Free ATS Resume Checker & Expert Resume Writing Service | Jalib" 
+                    : "Check Your ATS Score for Free | Jalib Resume Optimizer";
                 document.title = title;
-
-                // Manually track pageviews for this SPA-like behavior
                 if (window.va) {
-                    window.va('track', 'pageview', { path: virtualPath });
+                    window.va('track', 'pageview', { path: view === 'landing' ? '/' : '/ats-checker' });
                 }
             }, [view]);
 
             return (
                 <React.Fragment>
                     <style>{`
-                        @keyframes pulse-glow { 0%, 100% { transform: scale(1); box-shadow: 0 0 8px #f97316, 0 0 16px #f97316; } 50% { transform: scale(1.08); box-shadow: 0 0 16px #fb923c, 0 0 32px #fb923c; } }
-                        .animated-pay-button { animation: pulse-glow 2.5s infinite ease-in-out; }
+                        /* Key styles for presentation mode */
+                        .presentation-container {
+                            scroll-snap-type: y mandatory;
+                            overflow-y: scroll;
+                            height: 100vh; /* Fallback for older browsers */
+                            height: 100dvh; /* Dynamic viewport height for mobile */
+                            perspective: 1500px; /* Add perspective for 3D effect */
+                        }
+                        /* Hide scrollbar for a cleaner look */
+                        .presentation-container::-webkit-scrollbar { display: none; }
+                        .presentation-container { -ms-overflow-style: none; scrollbar-width: none; }
+                        
+                        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-15px); } 60% { transform: translateY(-8px); } }
+                        .animate-bounce-slow { animation: bounce 2.5s infinite; }
+
+                        /* Calendar Flip Animation */
+                        .slide-content {
+                            transform-origin: top center;
+                            transition: transform 0.9s cubic-bezier(0.45, 0, 0.55, 1), opacity 0.7s ease-out;
+                            transform: rotateX(-60deg);
+                            opacity: 0;
+                        }
+                        .slide-in .slide-content {
+                            transform: rotateX(0deg);
+                            opacity: 1;
+                        }
+                        
+                        /* Glowing Button Animation */
+                        @keyframes glow {
+                            0%, 100% { box-shadow: 0 0 5px #f59e0b, 0 0 10px #f59e0b, 0 0 15px #f59e0b; }
+                            50% { box-shadow: 0 0 10px #fbbf24, 0 0 20px #fbbf24, 0 0 30px #fbbf24; }
+                        }
+                        .animate-glow { animation: glow 2s infinite ease-in-out; }
+
+                        /* Zoom In/Out Animation */
+                        @keyframes zoomInOut {
+                            0%, 100% { transform: scale(1); }
+                            50% { transform: scale(1.05); }
+                        }
+                        .animate-zoom { animation: zoomInOut 5s infinite ease-in-out; }
+
                     `}</style>
-                    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white flex flex-col items-center relative font-sans text-gray-800 pt-48 sm:pt-24">
-                        
-                        <div className="fixed top-4 right-4 z-50 flex flex-col sm:flex-row gap-4">
-                            <Button onClick={() => setView('ats')} className="bg-white hover:bg-gray-100 text-orange-600 font-bold text-lg rounded-2xl shadow-lg px-6 py-4 border border-orange-200">
-                                Check ATS Score for Free
-                            </Button>
-                            <a href="https://rzp.io/rzp/jalib" target="_blank" rel="noopener noreferrer">
-                                <Button className="animated-pay-button bg-orange-500 hover:bg-orange-600 text-white text-lg rounded-2xl shadow-lg px-6 py-4">
-                                    Unlock Premium Hacks <ArrowRight className="ml-2 w-5 h-5" />
-                                </Button>
-                            </a>
-                        </div>
-                        
-                        {view === 'landing' ? (
-                            <LandingPageContent />
-                        ) : (
-                            <ATSCheckerPage onBack={() => setView('landing')} />
+                    <div className="bg-white font-sans text-gray-800">
+                        {/* Logo */}
+                        {view === 'landing' && (
+                            <div 
+                                onClick={handleLogoClick}
+                                className="fixed top-5 left-5 z-40 flex flex-col items-center cursor-pointer p-2 bg-white/50 backdrop-blur-sm rounded-lg shadow-md transition-transform hover:scale-105"
+                            >
+                                <img src="assets/logo.png" alt="Jalib Resume Writer Logo" className="h-10 w-10 mb-1" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/40x40/F97316/FFF?text=J'; }} />
+                                <span className="text-orange-600 font-extrabold text-sm">Jalib Resume</span>
+                            </div>
                         )}
 
+                        {/* Landing Page Presentation */}
+                        <main className={`presentation-container transition-opacity duration-500 ${view === 'landing' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                            {slideData.map((slide, i) => (
+                                <Slide 
+                                    key={i} 
+                                    id={slide.id}
+                                    isArchitect={slide.id === 'architect-slide'}
+                                    className={`${slide.bgColor} ${slide.textColor || 'text-gray-800'}`}
+                                >
+                                    <div className="flex flex-col lg:flex-row items-center justify-center gap-8 md:gap-12 w-full">
+                                       
+                                       {slide.img && (
+                                            <div className="w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 flex-shrink-0">
+                                                 <img
+                                                    src={slide.img}
+                                                    alt={slide.alt}
+                                                    className={`w-full h-full object-cover rounded-3xl shadow-2xl ${slide.title.includes("Architect") ? 'rounded-full border-8 border-orange-200' : ''}`}
+                                                    loading="lazy"
+                                                />
+                                            </div>
+                                       )}
+                                       
+                                        <div className={`flex flex-col items-center lg:items-start lg:text-left ${!slide.img ? 'w-full' : 'max-w-md'}`}>
+                                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
+                                                {slide.title}
+                                            </h1>
+                                            <p className={`mt-4 text-base sm:text-lg max-w-prose ${slide.textColor ? 'text-gray-300' : 'text-gray-600'}`}>
+                                                {slide.subtitle || slide.text}
+                                            </p>
+                                            
+                                            {slide.cta && (
+                                                <Button onClick={slide.action} className="mt-8 bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 py-4 shadow-lg transform hover:scale-105">
+                                                    {slide.cta}
+                                                </Button>
+                                            )}
+                                            
+                                            {slide.isFinal && (
+                                                <div className="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                                                    <a href="https://wa.me/916005795693" target="_blank" rel="noopener noreferrer">
+                                                        <Button className="bg-green-500 hover:bg-green-600 text-white text-lg px-8 py-4 shadow-lg w-full sm:w-auto transform hover:scale-105">
+                                                            Chat on WhatsApp <WhatsAppIcon className="ml-2 w-5 h-5" />
+                                                        </Button>
+                                                    </a>
+                                                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header" target="_blank" rel="noopener noreferrer">
+                                                        <Button className="bg-gray-100 hover:bg-gray-200 text-gray-800 text-lg px-8 py-4 shadow-lg w-full sm:w-auto transform hover:scale-105">
+                                                           Free Consultation
+                                                        </Button>
+                                                    </a>
+                                                </div>
+                                            )}
+
+                                        </div>
+                                    </div>
+                                    {i === 0 && (
+                                        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-70">
+                                            <span className="text-sm font-semibold">Scroll Down</span>
+                                            <ArrowDown className="w-6 h-6 animate-bounce-slow" />
+                                        </div>
+                                    )}
+                                </Slide>
+                            ))}
+                        </main>
+
+                        {/* ATS Checker View (Overlay) */}
+                        <div className={`fixed inset-0 z-50 transition-opacity duration-500 ${view === 'ats' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                            <ATSCheckerPage onBack={() => setView('landing')} />
+                        </div>
+                        
+                        {/* Fixed Premium Button */}
+                        {view === 'landing' && (
+                            <a href="https://rzp.io/rzp/jalib" target="_blank" rel="noopener noreferrer" className="fixed bottom-5 right-5 z-40">
+                                <Button className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-base px-6 py-3 shadow-2xl rounded-full transform transition-transform hover:scale-110 duration-300 animate-glow">
+                                   <UnlockKey className="w-5 h-5 mr-2" />
+                                   Unlock Premium Hacks
+                                </Button>
+                            </a>
+                        )}
                     </div>
                 </React.Fragment>
             );
