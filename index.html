@@ -250,19 +250,22 @@
         };
         
         // --- Presentation Slide Component ---
-        const Slide = ({ children, className, id, isArchitect }) => {
-            const [ref, inView] = useInView({ threshold: 0.4, triggerOnce: true });
+        const Slide = ({ children, className, id }) => {
+            const [ref, inView] = useInView({ threshold: 0.5 });
 
             return (
                 <section 
                     ref={ref}
                     id={id}
                     className={`
-                        w-full h-[100dvh] snap-start flex-shrink-0 flex items-center justify-center p-4 relative 
-                        ${className} ${inView ? 'slide-in' : ''}
+                        w-full h-[100dvh] snap-start flex-shrink-0 flex items-center justify-center p-4 pt-24 sm:pt-28 relative 
+                        ${className}
                     `}
                 >
-                    <div className={`slide-content w-full max-w-4xl mx-auto text-center ${isArchitect && inView ? 'animate-zoom' : ''}`}>
+                    <div className={`
+                        w-full max-w-5xl mx-auto text-center transition-all duration-1000 ease-in-out
+                        ${inView ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-12 scale-95'}
+                    `}>
                         {children}
                     </div>
                 </section>
@@ -275,13 +278,17 @@
             const ref = useRef(null);
             useEffect(() => {
                 const observer = new IntersectionObserver(([entry]) => {
-                    if (entry.isIntersecting) {
-                        setInView(true);
-                        if (ref.current) observer.unobserve(ref.current);
-                    }
+                    setInView(entry.isIntersecting);
                 }, options);
-                if (ref.current) observer.observe(ref.current);
-                return () => { if (ref.current) observer.unobserve(ref.current); };
+                const currentRef = ref.current;
+                if (currentRef) {
+                    observer.observe(currentRef);
+                }
+                return () => {
+                    if (currentRef) {
+                        observer.unobserve(currentRef);
+                    }
+                };
             }, [ref, options]);
             return [ref, inView];
         };
@@ -289,7 +296,9 @@
         // --- Main App Component (New Presentation Logic) ---
         function App() {
             const [view, setView] = useState('landing');
-            
+            const [isHeaderDocked, setIsHeaderDocked] = useState(false);
+            const firstSlideRef = useRef(null);
+
             const handleLogoClick = () => {
                 const architectSection = document.getElementById('architect-slide');
                 if (architectSection) {
@@ -297,17 +306,37 @@
                 }
             };
             
+            useEffect(() => {
+                const observer = new IntersectionObserver(
+                    ([entry]) => {
+                        setIsHeaderDocked(!entry.isIntersecting);
+                    },
+                    { threshold: 0.6 }
+                );
+
+                const currentRef = firstSlideRef.current;
+                if (currentRef) {
+                    observer.observe(currentRef);
+                }
+
+                return () => {
+                    if (currentRef) {
+                        observer.unobserve(currentRef);
+                    }
+                };
+            }, []);
+            
             const slideData = [
                 {
+                    id: 'first-slide',
                     title: "Beat the Bots & Get Hired",
                     subtitle: "Stop guessing if your resume is good enough. Get an instant, free ATS score and let our experts craft a resume that lands you interviews.",
                     img: "https://i.postimg.cc/hjtX8XYT/Gemini-Generated-Image-fiir1wfiir1wfiir.png",
                     alt: "A robot gatekeeper scanning a resume, symbolizing an Applicant Tracking System (ATS).",
                     bgColor: "bg-orange-50",
-                    cta: "Check Your ATS Score Free",
-                    action: () => setView('ats')
                 },
                 {
+                    id: 'second-slide',
                     title: "Stuck in the 'Under Review' Abyss? 👻",
                     text: 'Your resume is your first impression. If it’s not optimized for Applicant Tracking Systems (ATS), it might never be seen by human eyes. Stop getting ghosted by recruiters.',
                     img: "https://i.postimg.cc/xC6bBvm6/Gemini-Generated-Image-5nnzhg5nnzhg5nnz.png",
@@ -315,6 +344,7 @@
                     bgColor: "bg-gray-50"
                 },
                 {
+                    id: 'third-slide',
                     title: "Professional Resume Writing That Works 🍔",
                     text: "We craft a compelling career story for you, turning applications into interviews and interviews into offers.",
                     img: "https://i.postimg.cc/V62bYY7t/Gemini-Generated-Image-ukyueukyueukyueu.png",
@@ -352,7 +382,6 @@
                             overflow-y: scroll;
                             height: 100vh; /* Fallback for older browsers */
                             height: 100dvh; /* Dynamic viewport height for mobile */
-                            perspective: 1500px; /* Add perspective for 3D effect */
                         }
                         /* Hide scrollbar for a cleaner look */
                         .presentation-container::-webkit-scrollbar { display: none; }
@@ -360,112 +389,109 @@
                         
                         @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-15px); } 60% { transform: translateY(-8px); } }
                         .animate-bounce-slow { animation: bounce 2.5s infinite; }
-
-                        /* Calendar Flip Animation */
-                        .slide-content {
-                            transform-origin: top center;
-                            transition: transform 0.9s cubic-bezier(0.45, 0, 0.55, 1), opacity 0.7s ease-out;
-                            transform: rotateX(-60deg);
-                            opacity: 0;
-                        }
-                        .slide-in .slide-content {
-                            transform: rotateX(0deg);
-                            opacity: 1;
-                        }
                         
                         /* Glowing Button Animation */
                         @keyframes glow {
-                            0%, 100% { box-shadow: 0 0 5px #f59e0b, 0 0 10px #f59e0b, 0 0 15px #f59e0b; }
-                            50% { box-shadow: 0 0 10px #fbbf24, 0 0 20px #fbbf24, 0 0 30px #fbbf24; }
+                            0%, 100% { box-shadow: 0 0 6px #f59e0b, 0 0 12px #f59e0b; }
+                            50% { box-shadow: 0 0 12px #fbbf24, 0 0 24px #fbbf24; }
                         }
                         .animate-glow { animation: glow 2s infinite ease-in-out; }
 
-                        /* Zoom In/Out Animation */
-                        @keyframes zoomInOut {
-                            0%, 100% { transform: scale(1); }
-                            50% { transform: scale(1.05); }
-                        }
-                        .animate-zoom { animation: zoomInOut 5s infinite ease-in-out; }
-
                         /* Logo Animation */
                         @keyframes pulse-zoom {
-                            0%, 100% { transform: scale(1); }
-                            50% { transform: scale(1.1); }
+                            0%, 100% { transform: scale(1) rotate(0deg); }
+                            50% { transform: scale(1.1) rotate(5deg); }
                         }
-                        .animate-pulse-zoom { animation: pulse-zoom 2.5s infinite ease-in-out; }
-
+                        .animate-pulse-zoom { animation: pulse-zoom 3s infinite ease-in-out; }
                     `}</style>
                     <div className="bg-white font-sans text-gray-800">
-                        {/* Logo */}
+                        {/* Animated Header Elements */}
                         {view === 'landing' && (
-                            <div 
-                                onClick={handleLogoClick}
-                                className="fixed top-5 left-1/2 -translate-x-1/2 z-40 cursor-pointer p-2 bg-white/50 backdrop-blur-sm rounded-full shadow-md animate-pulse-zoom"
-                            >
-                                <img src="assets/logo.png" alt="Jalib Resume Writer Logo" className="h-14 w-14" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/56x56/F97316/FFF?text=J'; }} />
-                            </div>
+                            <>
+                                <div 
+                                    onClick={handleLogoClick}
+                                    className={`
+                                        fixed z-40 cursor-pointer p-2 bg-white/50 backdrop-blur-sm rounded-full shadow-lg transition-all duration-700 ease-in-out
+                                        ${isHeaderDocked 
+                                            ? 'top-4 left-4 w-16 h-16' 
+                                            : 'top-6 left-1/2 -translate-x-1/2 w-28 h-28 animate-pulse-zoom'
+                                        }
+                                    `}
+                                >
+                                    <img src="assets/logo.png" alt="Jalib Resume Writer Logo" className="w-full h-full rounded-full" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/112x112/F97316/FFF?text=J'; }} />
+                                </div>
+                                
+                                <div className={`
+                                    fixed z-30 transition-all duration-700 ease-in-out
+                                    ${isHeaderDocked ? 'top-6 right-4 opacity-100' : 'top-full opacity-0'}
+                                `}>
+                                     <Button onClick={() => setView('ats')} className="bg-white hover:bg-gray-100 text-orange-600 font-bold text-sm px-4 py-2 shadow-lg border border-orange-200">
+                                        Check ATS Score
+                                    </Button>
+                                </div>
+                            </>
                         )}
+
 
                         {/* Landing Page Presentation */}
                         <main className={`presentation-container transition-opacity duration-500 ${view === 'landing' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                             {slideData.map((slide, i) => (
-                                <Slide 
-                                    key={i} 
-                                    id={slide.id}
-                                    isArchitect={slide.id === 'architect-slide'}
-                                    className={`${slide.bgColor} ${slide.textColor || 'text-gray-800'}`}
-                                >
-                                    <div className="flex flex-col lg:flex-row items-center justify-center gap-8 md:gap-12 w-full">
-                                       
-                                       {slide.img && (
-                                            <div className="w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 flex-shrink-0">
-                                                 <img
-                                                    src={slide.img}
-                                                    alt={slide.alt}
-                                                    className={`w-full h-full object-cover rounded-3xl shadow-2xl ${slide.title.includes("Architect") ? 'rounded-full border-8 border-orange-200' : ''}`}
-                                                    loading="lazy"
-                                                />
-                                            </div>
-                                       )}
-                                       
-                                        <div className={`flex flex-col items-center lg:items-start lg:text-left ${!slide.img ? 'w-full' : 'max-w-md'}`}>
-                                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
-                                                {slide.title}
-                                            </h1>
-                                            <p className={`mt-4 text-base sm:text-lg max-w-prose ${slide.textColor ? 'text-gray-300' : 'text-gray-600'}`}>
-                                                {slide.subtitle || slide.text}
-                                            </p>
-                                            
-                                            {slide.cta && (
-                                                <Button onClick={slide.action} className="mt-8 bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 py-4 shadow-lg transform hover:scale-105">
-                                                    {slide.cta}
-                                                </Button>
-                                            )}
-                                            
-                                            {slide.isFinal && (
-                                                <div className="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                                                    <a href="https://wa.me/916005795693" target="_blank" rel="noopener noreferrer">
-                                                        <Button className="bg-green-500 hover:bg-green-600 text-white text-lg px-8 py-4 shadow-lg w-full sm:w-auto transform hover:scale-105">
-                                                            Chat on WhatsApp <WhatsAppIcon className="ml-2 w-5 h-5" />
-                                                        </Button>
-                                                    </a>
-                                                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header" target="_blank" rel="noopener noreferrer">
-                                                        <Button className="bg-gray-100 hover:bg-gray-200 text-gray-800 text-lg px-8 py-4 shadow-lg w-full sm:w-auto transform hover:scale-105">
-                                                           Free Consultation
-                                                        </Button>
-                                                    </a>
+                                <div key={slide.id} ref={i === 0 ? firstSlideRef : null}>
+                                    <Slide 
+                                        id={slide.id}
+                                        className={`${slide.bgColor} ${slide.textColor || 'text-gray-800'}`}
+                                    >
+                                        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 md:gap-12 w-full">
+                                           {slide.img && (
+                                                <div className="w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 flex-shrink-0 order-1 lg:order-none">
+                                                     <img
+                                                        src={slide.img}
+                                                        alt={slide.alt}
+                                                        className={`w-full h-full object-cover rounded-3xl shadow-2xl ${slide.id === 'architect-slide' ? 'rounded-full border-8 border-orange-200' : ''}`}
+                                                        loading="lazy"
+                                                    />
                                                 </div>
-                                            )}
+                                           )}
+                                           
+                                            <div className="flex flex-col items-center lg:items-start lg:text-left max-w-md order-2 lg:order-none">
+                                                <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
+                                                    {slide.title}
+                                                </h1>
+                                                <p className={`mt-4 text-base sm:text-lg max-w-prose ${slide.textColor ? 'text-gray-300' : 'text-gray-600'}`}>
+                                                    {slide.subtitle || slide.text}
+                                                </p>
+                                                
+                                                {slide.id === 'first-slide' && (
+                                                    <div className={`mt-8 flex flex-col items-center gap-4 transition-opacity duration-500 ${isHeaderDocked ? 'opacity-0' : 'opacity-100'}`}>
+                                                        <Button onClick={() => setView('ats')} className="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 py-4 shadow-lg transform hover:scale-105">
+                                                            Check Your ATS Score Free
+                                                        </Button>
+                                                         <div className="flex flex-col items-center gap-1 opacity-70">
+                                                            <span className="text-sm font-semibold">Scroll Down</span>
+                                                            <ArrowDown className="w-5 h-5 animate-bounce-slow" />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                
+                                                {slide.isFinal && (
+                                                    <div className="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                                                        <a href="https://wa.me/916005795693" target="_blank" rel="noopener noreferrer">
+                                                            <Button className="bg-green-500 hover:bg-green-600 text-white text-lg px-8 py-4 shadow-lg w-full sm:w-auto transform hover:scale-105">
+                                                                Chat on WhatsApp <WhatsAppIcon className="ml-2 w-5 h-5" />
+                                                            </Button>
+                                                        </a>
+                                                        <a href="https://docs.google.com/forms/d/e/1FAIpQLSf9I1MApaTyuwxTncp8CHnM4Ra4PohgASDhImLv0Bd7oCsy5w/viewform?usp=header" target="_blank" rel="noopener noreferrer">
+                                                            <Button className="bg-gray-100 hover:bg-gray-200 text-gray-800 text-lg px-8 py-4 shadow-lg w-full sm:w-auto transform hover:scale-105">
+                                                               Free Consultation
+                                                            </Button>
+                                                        </a>
+                                                    </div>
+                                                )}
 
+                                            </div>
                                         </div>
-                                    </div>
-                                    {i === 0 && (
-                                        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-70">
-                                            <span className="text-sm font-semibold">Scroll Down</span>
-                                            <ArrowDown className="w-6 h-6 animate-bounce-slow" />
-                                        </div>
-                                    )}
-                                </Slide>
+                                    </Slide>
+                                </div>
                             ))}
                         </main>
 
@@ -476,10 +502,10 @@
                         
                         {/* Fixed Premium Button */}
                         {view === 'landing' && (
-                            <a href="https://rzp.io/rzp/jalib" target="_blank" rel="noopener noreferrer" className="fixed bottom-5 right-5 z-40">
-                                <Button className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-base px-6 py-3 shadow-2xl rounded-full transform transition-transform hover:scale-110 duration-300 animate-glow">
+                             <a href="https://rzp.io/rzp/jalib" target="_blank" rel="noopener noreferrer" className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40">
+                                <Button className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-base px-6 py-4 shadow-2xl rounded-full transform transition-transform hover:scale-110 duration-300 animate-glow">
                                    <UnlockKey className="w-5 h-5 mr-2" />
-                                   Unlock Premium Hacks
+                                   Unlock Premium Hacks for ₹49 only
                                 </Button>
                             </a>
                         )}
